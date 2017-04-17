@@ -3,16 +3,16 @@
     $mysqlUserName      = "root";
     $mysqlPassword      = "";
     $mysqlHostName      = "localhost";
-    $DbName             = "test";
-    $backup_name        = "mybackup.sql";
+    $dbName             = "test";
+    $fileName           = "file";
     $tables             = "export2";
     $format             = "txt";
 
    //or add 5th parameter(array) of specific tables:    array("mytable1","mytable2","mytable3") for multiple tables
 
-    Export_Database($mysqlHostName,$mysqlUserName,$mysqlPassword,$DbName,  $tables, $backup_name=false, $format);
+    Export_Database($mysqlHostName, $mysqlUserName, $mysqlPassword, $dbName, $tables, $fileName, $format);
 
-    function Export_Database($host,$user,$pass,$name,  $tables, $backup_name=false, $format)
+    function Export_Database($host,$user,$pass,$name,  $tables, $fileName=false, $format)
     {
         $tables = ["export2"];
         $mysqli = new mysqli($host,$user,$pass,$name); 
@@ -43,7 +43,7 @@
                 for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
                 {
                     while($row = $result->fetch_row())  
-                    { //when started (and every after 100 command cycle):
+                    {   //first row
                         if ($st_counter == 0 )  
                         {
                             $content .= "INSERT INTO ".$table." (";
@@ -58,6 +58,7 @@
                             }
                             $content .= ") VALUES";
                         }
+                        //every row
                         $content .= PHP_EOL."(";
                         for($j=0; $j<$fields_amount; $j++)  
                         { 
@@ -76,19 +77,18 @@
                             }      
                         }
                         $content .=")";
-                        //every after 100 command cycle [or at last line] ....p.s. but should be inserted 1 cycle eariler
+                        //every row but last
                         if (!$st_counter+1==$rows_num) 
                         {   
                             $content .= ",";
                         } 
                         $st_counter=$st_counter+1;
                     }
-                } $content .="\n\n\n";
-                //$backup_name = $backup_name ? $backup_name : $name."___(".date('H-i-s')."_".date('d-m-Y').")__rand".rand(1,11111111).".sql";
-                $backup_name = $backup_name ? $backup_name : $name.".sql";
+                }
+                $fileName = $fileName.".sql";
                 header('Content-Type: application/octet-stream');   
                 header("Content-Transfer-Encoding: Binary"); 
-                header("Content-disposition: attachment; filename=\"".$backup_name."\"");  
+                header("Content-disposition: attachment; filename=\"".$fileName."\"");  
                 echo $content; exit;
                 break;
             case "txt":
@@ -96,6 +96,7 @@
                 {
                     while($row = $result->fetch_row())  
                     { 
+                        //every row
                         for($j=0; $j<$fields_amount; $j++)  
                         { 
                             $row[$j] = str_replace("\n","\\n", addslashes($row[$j]) ); 
@@ -115,12 +116,64 @@
                         $content .= PHP_EOL;
                         $st_counter=$st_counter+1;
                     }
-                } $content .="\n\n\n";
-                //$backup_name = $backup_name ? $backup_name : $name."___(".date('H-i-s')."_".date('d-m-Y').")__rand".rand(1,11111111).".sql";
-                $backup_name = $backup_name ? $backup_name : $name.".txt";
+                }
+                $fileName = $fileName.".txt";
                 header('Content-Type: application/octet-stream');   
                 header("Content-Transfer-Encoding: UTF-8"); 
-                header("Content-disposition: attachment; filename=\"".$backup_name."\"");  
+                header("Content-disposition: attachment; filename=\"".$fileName."\"");  
+                echo $content; exit;
+                break;
+            case "json":
+                for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
+                {
+                    $columns = $mysqli->query('SHOW COLUMNS FROM '.$table);
+                    $column_amount  =   $mysqli->affected_rows;
+                    $column_names = array();
+                    for ($j=0; $j<$column_amount; $j++){
+                        $column = $columns->fetch_row();
+                        array_push($column_names, $column[0]);
+                    }
+                    while($row = $result->fetch_row())  
+                    {   //first row
+                        if ($st_counter == 0 )  
+                        {
+                            $content .= "{".PHP_EOL;
+                        }
+                        //every row
+                        $content .= '  "'.$table.'":{'.PHP_EOL;
+                        for($j=0; $j<$fields_amount; $j++)  
+                        { 
+                            $row[$j] = str_replace("\n","\\n", addslashes($row[$j]) ); 
+                            if (isset($row[$j]))
+                            {
+                                if ($row[$j]!=""){
+                                    $content .= '    "'.$column_names[$j].'": '.$row[$j]; 
+                                }   
+                                elseif ($j==$fields_amount-1){
+                                    $content = substr($content, 0, -3);
+                                }
+                            }
+                            if ($j<($fields_amount-1))
+                            {
+                                $content.= ','.PHP_EOL;
+                            }      
+                            else {
+                                $content.= PHP_EOL;
+                            }
+                        }
+                        $content .="  }".PHP_EOL;
+                        //last row
+                        if ($st_counter+1==$rows_num) 
+                        {   
+                            $content .= "}";
+                        } 
+                        $st_counter=$st_counter+1;
+                    }
+                }
+                $fileName = $fileName.".json";
+                header('Content-Type: application/octet-stream');   
+                header("Content-Transfer-Encoding: Binary"); 
+                header("Content-disposition: attachment; filename=\"".$fileName."\"");  
                 echo $content; exit;
                 break;
         }
