@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+{* Toto je komentář v Latte, na rozdíl od komentářů v HTML se tento komentář nezobrazí ve výstupu stránky *}
+<head>
+	<meta charset="utf-8" />
+    {* Použije se proměnná titulek předaná při volání funkce render() v PHP skriptu *}
+	<title>{$titulek}</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <!---<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        -->
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="styl.css" />
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <ul class="nav nav-tabs">
+            </ul>
+        </nav>
+        <h1 class="h2">{$titulek}</h1>
+
+        {* Na toto místo se vloží blok s názvem obsah, který bude definován v jiné šabloně *}
+        {include obsah}
+    </div>
+</body>
+</html>
