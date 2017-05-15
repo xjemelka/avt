@@ -141,7 +141,7 @@ $stmt = $db->query("SELECT table_name
                                     if ($row[$j]!=""){
                                         $content .= '    "'.$column_names[$j].'": '.$row[$j]; 
                                     }   
-                                    elseif ($j==$fields_amount-1){
+                                    else{
                                         $content = substr($content, 0, -3);
                                     }
                                 }
