@@ -168,10 +168,97 @@ $stmt = $db->query("SELECT table_name
                     header("Content-disposition: attachment; filename=\"".$fileName."\"");  
                     echo $content; exit;
                     break;
+                case "csv":
+                    for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
+                    {
+                        while($row = $result->fetch(PDO::FETCH_NUM))  
+                        { 
+                            //every row
+                            for($j=0; $j<$fields_amount; $j++)  
+                            { 
+                                //$row[$j] = str_replace("\n","\\n", addslashes($row[$j]) ); 
+
+                               // if (strpos($row[$j], ',') !== false) {
+                                    $row[$j] = str_replace('"', '""', $row[$j]);
+                                    $row[$j] = '"'.$row[$j].'"';
+                                //}
+                                if (isset($row[$j]))
+                                {
+                                    $content .= $row[$j] ; 
+                                }
+                                else 
+                                {   
+                                    $content .= '""';
+                                }     
+                                if ($j<($fields_amount-1))
+                                {
+                                        $content.= ',';
+                                }      
+                            }
+                            //$content .= PHP_EOL;
+                            $content .= "\r\n";
+                            $st_counter=$st_counter+1;
+                        }
+                    }
+                    $fileName = $fileName.".csv";
+                    header('Content-Type: application/octet-stream');   
+                    header("Content-Transfer-Encoding: UTF-8"); 
+                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
+                    echo $content; exit;
+                    break;
+                case "html":
+                    $content .= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html>';
+                    $content .= '<head><meta http-equiv="content-type" content="text/html; charset=windows-1250"><title>'.$table.'</title>';
+                    $content .= '</head><body><table>';
+                    $columns = $db->prepare('SELECT column_name
+                                                        FROM information_schema.columns
+                                                          where table_name = :t');
+                    $columns -> bindValue(":t",$table);
+                    $columns -> execute();
+                    $column_amount  =   $columns->rowCount();
+                    $column_names = array();
+                        
+                    $content .= '<tr>';
+                        for ($j=0; $j<$column_amount; $j++){
+                            $column = $columns->fetch(PDO::FETCH_NUM);
+                            $content .= '<th>'.$column[0].'</th>';
+                        }
+                    $content .= '</tr>';
+                    
+                    for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
+                    {
+                        
+                        while($row = $result->fetch(PDO::FETCH_NUM))  
+                        { 
+                            //every row
+                            $content .= '<tr>';
+                            for($j=0; $j<$fields_amount; $j++)  
+                            { 
+                                if (isset($row[$j]))
+                                {
+                                    $content .= "<td>".$row[$j]."</td>" ; 
+                                }
+                                else 
+                                {   
+                                    $content .= '<td></td>';
+                                }      
+                            }
+                            //$content .= PHP_EOL;
+                            $content .= '</tr>';
+                            $st_counter=$st_counter+1;
+                        }
+                    }
+                    $content .= '</table></body></html>';
+                    $fileName = $fileName.".html";
+                    header('Content-Type: application/octet-stream'); 
+                    header("Content-Transfer-Encoding: UTF-8"); 
+                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
+                    echo $content; exit;
+                    break;
             }
         }
     }
-    $format = ['sql','txt','json'];
+    $format = ['sql','txt','json','csv','html'];
     $tplVars["titulek"] = "Export";
     $tplVars["tabulky"] = $stmt->fetchAll();
     $tplVars["formaty"] = $format;
