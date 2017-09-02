@@ -112,19 +112,20 @@ $stmt = $db->query("SELECT table_name
                     echo $content; exit;
                     break;
                 case "json":
-                    for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
-                    {
-                        $columns = $db->prepare('SELECT column_name
+                    $columns = $db->prepare('SELECT column_name
                                                         FROM information_schema.columns
                                                           where table_name = :t');
-                        $columns -> bindValue(":t",$table);
-                        $columns -> execute();
-                        $column_amount  =   $columns->rowCount();
-                        $column_names = array();
-                        for ($j=0; $j<$column_amount; $j++){
-                            $column = $columns->fetch(PDO::FETCH_NUM);
-                            array_push($column_names, $column[0]);
-                        }
+                    $columns -> bindValue(":t",$table);
+                    $columns -> execute();
+                    $column_amount  =   $columns->rowCount();
+                    $column_names = array();
+                    for ($j=0; $j<$column_amount; $j++){
+                        $column = $columns->fetch(PDO::FETCH_NUM);
+                        array_push($column_names, $column[0]);
+                    }
+                    for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
+                    {
+                        
                         while($row = $result->fetch(PDO::FETCH_NUM))
                         {   //first row
                             if ($st_counter == 0 )  
