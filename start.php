@@ -18,7 +18,7 @@ session_start(); //DO PROJEKTU PRIDELAT
 
 // Připojení k databázi.
 try {
-    $db = new PDO('pgsql:host=localhost;dbname=xjemelka', 'xjemelka', 'heslo2');
+    $db = new PDO('mysql:host=localhost;dbname=nastaveni', 'root', 'heslo2');
 } catch (Exception $e) {
     echo "Nelze se připojit k databázi ".$e->getMessage();
     exit(); // Totéž jako die(); - ukončí běh PHP skriptu.

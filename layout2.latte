@@ -20,10 +20,12 @@
     <div class="container">
         <nav>
             <ul class="nav nav-tabs">
-                {if !empty($navigace)}
-                    <li {if $navigace==1}class="active"{/if}><a href="index.php">Index</a></li>
-                    {if !empty($user)}<li class="posledni"><a href="logout.php">Logout</a></li>{/if}
-                {/if}
+                <li {if $navigace==1}class="active"{/if}><a href="index.php">Osoby</a></li>
+                <li {if $navigace==2}class="active"{/if}><a href="kontakty.php">Kontakty</a></li>
+                <li {if $navigace==3}class="active"{/if}><a href="schuzky.php">Schůzky</a></li>
+                <li {if $navigace==4}class="active"{/if}><a href="vztahy.php">Vztahy</a></li>
+                <li {if $navigace==5}class="active"{/if}><a href="nastaveni.php">Nastavení</a></li>
+                {if !empty($user)}<li class="posledni"><a href="logout.php">Logout</a></li>{/if}
             </ul>
         </nav>
         <h1 class="h2">{$titulek}</h1>

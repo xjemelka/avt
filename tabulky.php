@@ -9,12 +9,15 @@ require 'overeni.php';
 
 //ověřuje jestli je učitel - později přesunout takové podmínky do souborů jako je overeni.php pro každé oprávnění zvlášť
 if ($_SESSION["user"]["type"] = 1){
-    $stmt = $db->query("SELECT schema_name AS nazev
-    FROM information_schema.SCHEMATA
-    WHERE schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')");
 
-    $tplVars["titulek"] = "Výběr databáze";
-    $tplVars["databaze"] = $stmt->fetchAll();
+    $stmt = $db->prepare("SELECT table_name as nazev
+    FROM information_schema.tables
+    WHERE table_schema= :db
+    AND table_type='BASE TABLE'");
+    $stmt->bindvalue(":db", $_SESSION['db']);
+            $stmt->execute();
+    
+
 
 
     if(!empty($_POST['db'])){
@@ -42,7 +45,14 @@ if ($_SESSION["user"]["type"] = 1){
     }
 
 }
-
+    $format = ['sql','txt','json','csv','html','náhodný'];
+    $zpusob = ['vše','částečně'];
+    
+    $tplVars["tabulky"] = $stmt->fetchAll();
+    $tplVars["formaty"] = $format;
+    $tplVars["zpusoby"] = $zpusob;
+    
+    $tplVars["titulek"] = "Nastavení tabulek";
     $tplVars["navigace"] = 1;
-    $tpl->render("index.latte", $tplVars);
+    $tpl->render("tabulky.latte", $tplVars);
 ?>
