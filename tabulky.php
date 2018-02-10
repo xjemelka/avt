@@ -8,18 +8,10 @@ require 'overeni.php';
 /* @tpl Latte\Engine */
 
 //ověřuje jestli je učitel - později přesunout takové podmínky do souborů jako je overeni.php pro každé oprávnění zvlášť
-if ($_SESSION["user"]["type"] = 1){
-
-    $stmt = $db->prepare("SELECT table_name as nazev
-    FROM information_schema.tables
-    WHERE table_schema= :db
-    AND table_type='BASE TABLE'");
-    $stmt->bindvalue(":db", $_SESSION['db']);
-            $stmt->execute();
+if ($_SESSION["user"]["type"] != 1 or (empty($_POST['db']) and empty($_SESSION['db']))){
+    header('Location: index.php');
+}
     
-
-
-
     if(!empty($_POST['db'])){
 
         //ochrana aby nebyla vybrána neexistující/špatná db
@@ -43,14 +35,24 @@ if ($_SESSION["user"]["type"] = 1){
             die($e->getMessage());
         }
     }
-
-}
-    $format = ['sql','txt','json','csv','html','náhodný'];
-    $zpusob = ['vše','částečně'];
     
-    $tplVars["tabulky"] = $stmt->fetchAll();
-    $tplVars["formaty"] = $format;
-    $tplVars["zpusoby"] = $zpusob;
+    $tabulky = $db->prepare("SELECT tab.table_name as nazev, exp.id_formaty, exp.id_zpusoby
+    FROM information_schema.tables tab
+    LEFT JOIN nastaveni.export exp
+    ON tab.table_schema = exp.databaze AND tab.table_name = exp.tabulka
+    WHERE tab.table_schema= :db
+    AND tab.table_type='BASE TABLE'");
+    $tabulky->bindvalue(":db", $_SESSION['db']);
+    $tabulky->execute();
+    
+    $format = $db->prepare("select id_formaty, nazev FROM nastaveni.formaty");
+    $format->execute();
+    $zpusob = $db->prepare("select id_zpusoby, nazev FROM nastaveni.zpusoby");
+    $zpusob->execute();
+
+    $tplVars["tabulky"] = $tabulky->fetchAll();
+    $tplVars["formaty"] = $format->fetchAll();
+    $tplVars["zpusoby"] = $zpusob->fetchAll();
     
     $tplVars["titulek"] = "Nastavení tabulek";
     $tplVars["navigace"] = 1;

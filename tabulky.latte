@@ -7,17 +7,17 @@
             <div class="col-sm-10">
                 <div class="form-group">
                 {foreach $tabulky as $t}
-                <label class="col-sm-2 control-label">{$t['nazev']}</label>    
+                    <label class="col-sm-2 control-label">{$t['nazev']}</label>    
                     <select class="form-control" name="{$t['nazev']}_format">
                         <option value="" disabled selected>Vyberte formát</option>
                         {foreach $formaty as $f}
-                            <option value="{$f}">{$f}</option>
+                            <option {if $t['id_formaty']==$f['id_formaty']}selected{/if} value="{$f['id_formaty']}">{$f['nazev']}</option>
                         {/foreach}
                      </select>  
                      <select class="form-control" name="{$t['nazev']}_zpusob">
                         <option value="" disabled selected>Vyberte způsob</option>
                         {foreach $zpusoby as $z}
-                            <option value="{$z}">{$z}</option>
+                            <option {if $t['id_zpusoby']==$z['id_zpusoby']}selected{/if} value="{$z['id_zpusoby']}">{$z['nazev']}</option>
                         {/foreach}
                      </select>  
                 {/foreach}
