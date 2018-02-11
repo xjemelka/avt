@@ -7,9 +7,10 @@ require 'overeni.php';
 /* @var $db PDO */
 /* @tpl Latte\Engine */
     
-
-    if (!empty($_POST['db'])){
-        
+    $slozka = 'files/'.$_SESSION["user"]["login"];
+    if (!empty($_POST['db']) && !file_exists($slozka)){
+        //pokud složka neexistuje pokračuj a založ, pokud existuje, pravděpodobně na to uživatel klikl dvakrát rychle za sebou
+        mkdir($slozka, 0777);
         $databaze = $_POST['db'];
         $tabulky = $db->prepare("SELECT exp.tabulka, form.nazev as format, zpu.nazev as zpusob
         FROM nastaveni.export exp
@@ -25,7 +26,7 @@ require 'overeni.php';
         foreach ($tabulky as $tabulka) {        
             $format = $tabulka['format'];
             $table = $tabulka['tabulka'];
-            $fileName = 'export';
+            $fileName = $table;
             $result = $db->prepare("SELECT * FROM ".$databaze.".".$table);
             $result -> execute();
             $fields_amount = $result->columnCount();
@@ -85,10 +86,7 @@ require 'overeni.php';
                         }
                     }
                     $fileName = $fileName.".sql";
-                    header('Content-Type: application/octet-stream');   
-                    header("Content-Transfer-Encoding: Binary"); 
-                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
-                    echo $content; exit;
+                    file_put_contents($slozka.'/'.$fileName, $content);
                     break;
                 case "txt":
                     for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
@@ -118,10 +116,7 @@ require 'overeni.php';
                         }
                     }
                     $fileName = $fileName.".txt";
-                    header('Content-Type: application/octet-stream');   
-                    header("Content-Transfer-Encoding: UTF-8"); 
-                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
-                    echo $content; exit;
+                    file_put_contents($slozka.'/'.$fileName, $content);
                     break;
                 case "json":
                     $columns = $db->prepare('SELECT column_name
@@ -178,12 +173,8 @@ require 'overeni.php';
                         }
                     }
                     $fileName = $fileName.".json";
-                    header('Content-Type: application/octet-stream');   
-                    header("Content-Transfer-Encoding: Binary"); 
-                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
-                    echo $content; exit;
+                    file_put_contents($slozka.'/'.$fileName, $content);
                     break;
-                    //file_put_contents($fileName, $content);
                 case "csv":
                     for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
                     {
@@ -217,10 +208,7 @@ require 'overeni.php';
                         }
                     }
                     $fileName = $fileName.".csv";
-                    header('Content-Type: application/octet-stream');   
-                    header("Content-Transfer-Encoding: UTF-8"); 
-                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
-                    echo $content; exit;
+                    file_put_contents($slozka.'/'.$fileName, $content); 
                     break;
                 case "html":
                     $content .= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html>';
@@ -268,13 +256,42 @@ require 'overeni.php';
                     }
                     $content .= '</table></body></html>';
                     $fileName = $fileName.".html";
-                    header('Content-Type: application/octet-stream'); 
-                    header("Content-Transfer-Encoding: UTF-8"); 
-                    header("Content-disposition: attachment; filename=\"".$fileName."\"");  
-                    echo $content; exit;
+                    file_put_contents($slozka.'/'.$fileName, $content);
                     break;
             }
         }
+        //zazipuj všechny soubory ve složce a stáhni
+        $zip = new ZipArchive;
+        $download = $slozka.'.zip';
+        if(file_exists($download)){
+            unlink($download);
+        }
+        $zip->open($download, ZipArchive::CREATE);
+        foreach (glob($slozka."/*.*") as $file) { /* Add appropriate path to read content of zip */
+            $new_filename = substr($file,strrpos($file,'/') + 1);
+            $zip->addFile($file,$new_filename);
+        }
+        $zip->close();
+        header('Content-Type: application/zip');
+        header("Content-Disposition: attachment; filename = $download");
+        header('Content-Length: ' . filesize($download));
+        header("Location: $download");
+        
+        if (file_exists($download)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="'.basename($download).'"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($download));
+            readfile($download);
+            
+        }
+        //smaž soubory a složku, aby šlo generovat znovu - zip smazat nemůžu, nestáhl by se, ale ten se smaže (pokud existuje) vždy před vytvořením zvlášť
+        array_map('unlink', glob($slozka."/*.*"));
+        rmdir($slozka);
+        exit;
     }
-    header('Location: tabulky.php');
+    header('Location: index.php');
 ?>
