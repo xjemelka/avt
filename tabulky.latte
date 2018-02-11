@@ -1,6 +1,12 @@
 {extends 'layout.latte'}
 {block obsah}
 
+{if !empty($hlaska)}
+    <p>
+        {$hlaska}
+    </p>
+{/if}
+
 <div class="row">
     <div class="col-sm-12 col-md-6">
         <form class="form-horizontal" action="tabulky.php" method="POST">
@@ -9,15 +15,19 @@
                 {foreach $tabulky as $t}
                     <label class="col-sm-2 control-label">{$t['nazev']}</label>    
                     <select class="form-control" name="{$t['nazev']}_format">
-                        <option value="" disabled selected>Vyberte formát</option>
+                        <option value=0 disabled selected>Vyberte formát</option>
                         {foreach $formaty as $f}
-                            <option {if $t['id_formaty']==$f['id_formaty']}selected{/if} value="{$f['id_formaty']}">{$f['nazev']}</option>
+                            <option {if !isset($form[$t['nazev'].'_format'])}{if $t['id_formaty']==$f['id_formaty']}selected{/if}
+                                    {elseif $form[$t['nazev'].'_format']==$f['id_formaty']}selected{/if}                                                
+                                    value="{$f['id_formaty']}">{$f['nazev']}</option>
                         {/foreach}
                      </select>  
                      <select class="form-control" name="{$t['nazev']}_zpusob">
-                        <option value="" disabled selected>Vyberte způsob</option>
+                        <option value=0 disabled selected>Vyberte způsob</option>
                         {foreach $zpusoby as $z}
-                            <option {if $t['id_zpusoby']==$z['id_zpusoby']}selected{/if} value="{$z['id_zpusoby']}">{$z['nazev']}</option>
+                            <option {if !isset($form[$t['nazev'].'_zpusob'])}{if $t['id_zpusoby']==$z['id_zpusoby']}selected{/if}
+                                    {elseif $form[$t['nazev'].'_zpusob']==$z['id_zpusoby']}selected{/if}                                                
+                                    value="{$z['id_zpusoby']}">{$z['nazev']}</option>
                         {/foreach}
                      </select>  
                 {/foreach}
@@ -25,7 +35,7 @@
             </div>
             <div class="form-group">    
                 <div class="col-sm-10">
-                    <input class="btn btn-primary" name="submit" type="submit" value="Vybrat"/>
+                    <input class="btn btn-primary" name="submit" type="submit" value="Vybrat" />
                 </div>
             </div>
         </form>
