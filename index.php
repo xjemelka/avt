@@ -8,10 +8,13 @@ require 'overeni.php';
 /* @tpl Latte\Engine */
 
 //ověřuje jestli je učitel - později přesunout takové podmínky do souborů jako je overeni.php pro každé oprávnění zvlášť
-if ($_SESSION["user"]["type"] = 1){
+if ($_SESSION["user"]["typ"] != 1){
+    header('Location: sindex.php');
+}
     $stmt = $db->query("SELECT schema_name AS nazev
     FROM information_schema.SCHEMATA
-    WHERE schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')");
+    WHERE schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')
+    AND schema_name LIKE 'zadani_%'");
 
     $tplVars["titulek"] = "Výběr databáze";
     $tplVars["databaze"] = $stmt->fetchAll();
@@ -24,7 +27,8 @@ if ($_SESSION["user"]["type"] = 1){
             $stmt = $db->prepare("SELECT schema_name AS nazev
             FROM information_schema.SCHEMATA
             WHERE schema_name = :db
-            and schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')");
+            and schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')
+            and schema_name like 'zadani_%'");
             $stmt->bindvalue(":db", $_POST['db']);
             $stmt->execute();
 
@@ -41,7 +45,6 @@ if ($_SESSION["user"]["type"] = 1){
         }
     }
 
-}
 
     $tplVars["navigace"] = 1;
     $tpl->render("index.latte", $tplVars);

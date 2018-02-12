@@ -6,8 +6,8 @@ require 'overeni.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
-    $zdroj_databaze = 'zadani_a';
-    $cil_databaze = 'xtestovani';
+    $zdroj_databaze = 'zadani_knihy';
+    $cil_databaze = 'admin';
     $tabulky = $db->prepare("SELECT tab.table_name as nazev, zpu.nazev as zpusob
     FROM information_schema.tables tab
     INNER JOIN nastaveni.export exp
@@ -16,7 +16,7 @@ require 'overeni.php';
     ON exp.id_zpusoby = zpu.id_zpusoby
     WHERE tab.table_schema= :db
     AND tab.table_type='BASE TABLE'
-    ORDER BY exp.poradi_generovani");
+    ORDER BY exp.poradi");
     $tabulky->bindvalue(":db", $zdroj_databaze);
     $tabulky->execute();
     $tabulky = $tabulky->fetchAll();
@@ -52,7 +52,7 @@ require 'overeni.php';
                 
                 $count = $db->query("SELECT count(*) pocet FROM ".$nazev);
                 $count = $count->fetch();
-                $count = round($count['pocet']/2,PHP_ROUND_HALF_DOWN);
+                $count = round($count['pocet']/2,0,PHP_ROUND_HALF_DOWN);
                 
                 //mariaDB neumí moc where in (... limit), proto musí být obalena v ještě jednom selectu
                 $smaz = $db->query("DELETE FROM ".$nazev." WHERE ".$primarni_klic." IN (SELECT * FROM (SELECT ".$primarni_klic." FROM ".$nazev." ORDER BY RAND() LIMIT ".$count.") as t)");

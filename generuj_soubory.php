@@ -7,11 +7,16 @@ require 'overeni.php';
 /* @var $db PDO */
 /* @tpl Latte\Engine */
     
-    $slozka = 'files/'.$_SESSION["user"]["login"];
-    if (!empty($_POST['db']) && !file_exists($slozka)){
+    $login = $_SESSION["user"]["login"];
+    $zadani = $_SESSION["user"]["zadani"];
+    if (!empty($_POST['db']) && $_SESSION["user"]["typ"] == 1){
+        $zadani = $_POST['db'];
+    }
+    $slozka = 'files/'.$login;
+    if (!file_exists($slozka)){
         //pokud složka neexistuje pokračuj a založ, pokud existuje, pravděpodobně na to uživatel klikl dvakrát rychle za sebou
         mkdir($slozka, 0777);
-        $databaze = $_POST['db'];
+        $databaze = $login;
         $tabulky = $db->prepare("SELECT exp.tabulka, form.nazev as format, zpu.nazev as zpusob
         FROM nastaveni.export exp
         INNER JOIN nastaveni.formaty form
@@ -19,7 +24,8 @@ require 'overeni.php';
         INNER JOIN nastaveni.zpusoby zpu
         ON exp.id_zpusoby = zpu.id_zpusoby
         WHERE exp.databaze = :db");
-        $tabulky->bindvalue(":db", $_POST['db']);
+        //tady je potřeba nabindovat databázi zadání! ne studentovu
+        $tabulky->bindvalue(":db", $zadani);
         $tabulky->execute();
         $tabulky = $tabulky->fetchAll();
         

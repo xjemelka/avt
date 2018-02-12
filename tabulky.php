@@ -8,11 +8,11 @@ require 'overeni.php';
 /* @tpl Latte\Engine */
 
 //ověřuje jestli je učitel - později přesunout takové podmínky do souborů jako je overeni.php pro každé oprávnění zvlášť
-if ($_SESSION["user"]["type"] != 1 or empty($_SESSION['db'])){
+if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
     header('Location: index.php');
 }
     
-    $dotaz_tabulky = "SELECT tab.table_name as nazev, exp.id_formaty, exp.id_zpusoby
+    $dotaz_tabulky = "SELECT tab.table_name as nazev, exp.id_formaty, exp.id_zpusoby, exp.poradi
     FROM information_schema.tables tab
     LEFT JOIN nastaveni.export exp
     ON tab.table_schema = exp.databaze AND tab.table_name = exp.tabulka
@@ -37,7 +37,7 @@ if ($_SESSION["user"]["type"] != 1 or empty($_SESSION['db'])){
             $chyba = 0;
             foreach ($tabulky2 as $tabulka) {
                 //kontrola vyplnění údajů
-                if (empty($_POST[$tabulka['nazev']."_format"]) || empty($_POST[$tabulka['nazev']."_zpusob"]) ){
+                if (empty($_POST[$tabulka['nazev']."_format"]) || empty($_POST[$tabulka['nazev']."_zpusob"]) || empty($_POST[$tabulka['nazev']."_poradi"]) ){
                     $chyba = 1;
                 }
             }
@@ -53,19 +53,21 @@ if ($_SESSION["user"]["type"] != 1 or empty($_SESSION['db'])){
                 $tabulky3 = $tabulky3->fetchAll();
                 foreach ($tabulky2 as $tabulka) {
                     if (empty($tabulka['id_formaty'])){
-                        $insert = $db->prepare("insert into nastaveni.export (databaze,tabulka,id_formaty,id_zpusoby) values (:db, :tb, :fo, :zp)");
+                        $insert = $db->prepare("insert into nastaveni.export (databaze,tabulka,id_formaty,id_zpusoby,poradi) values (:db, :tb, :fo, :zp, :po)");
                         $insert->bindValue(":db", $_SESSION['db']);
                         $insert->bindValue(":tb", $tabulka['nazev']);
                         $insert->bindValue(":fo", $_POST[$tabulka['nazev']."_format"]);
                         $insert->bindValue(":zp", $_POST[$tabulka['nazev']."_zpusob"]);
+                        $insert->bindValue(":po", $_POST[$tabulka['nazev']."_poradi"]);
                         $insert->execute();
                     }
                     else{
-                        $update = $db->prepare("update nastaveni.export set id_formaty=:fo,id_zpusoby=:zp where databaze=:db and tabulka=:tb");
+                        $update = $db->prepare("update nastaveni.export set id_formaty=:fo,id_zpusoby=:zp,poradi=:po where databaze=:db and tabulka=:tb");
                         $update->bindValue(":db", $_SESSION['db']);
                         $update->bindValue(":tb", $tabulka['nazev']);
                         $update->bindValue(":fo", $_POST[$tabulka['nazev']."_format"]);
                         $update->bindValue(":zp", $_POST[$tabulka['nazev']."_zpusob"]);
+                        $update->bindValue(":po", $_POST[$tabulka['nazev']."_poradi"]);
                         $update->execute();
                     }
                 }

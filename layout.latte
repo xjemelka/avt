@@ -22,6 +22,7 @@
             <ul class="nav nav-tabs">
                 {if !empty($navigace)}
                     <li {if $navigace==1}class="active"{/if}><a href="index.php">Index</a></li>
+                    {if $user['typ']==1}<li><a href="studenti.php">Přehled studentů</a></li>{/if}
                     {if !empty($user)}<li class="posledni"><a href="logout.php">Logout</a></li>{/if}
                 {/if}
             </ul>

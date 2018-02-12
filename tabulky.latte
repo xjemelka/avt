@@ -30,6 +30,9 @@
                                     value="{$z['id_zpusoby']}">{$z['nazev']}</option>
                         {/foreach}
                      </select>  
+                     <input class="form-control" type="number" name="{$t['nazev']}_poradi" min="1" max="25" 
+                            {if isset($form[$t['nazev'].'_poradi'])}value="{$form[$t['nazev'].'_poradi']}" 
+                            {else}value={$t['poradi']}{/if} >
                 {/foreach}
                 </div>
             </div>
@@ -39,7 +42,7 @@
                 </div>
             </div>
         </form>
-        <form class="form-horizontal" action="generuj.php" method="POST">
+        <form class="form-horizontal" action="generuj_soubory.php" method="POST">
             <input type="hidden" name="db" value={$db} />
             <div class="form-group">    
                 <div class="col-sm-10">
