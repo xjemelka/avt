@@ -6,8 +6,25 @@ require 'overeni.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
-    $zdroj_databaze = 'zadani_knihy';
-    $cil_databaze = 'admin';
+    if ($_SESSION["user"]["typ"] != 1 || empty($_POST['db'])){
+        header('Location: index.php');
+    }
+    
+    $zdroj_databaze = $_POST['db'];
+    $cil_databaze = $_SESSION["user"]["login"];
+    $stahni_po_vygenerovani = 1;
+    if (!empty($_POST['uzivatel'])){
+        $cil_databaze = $_POST['uzivatel'];
+        $stahni_po_vygenerovani = 0;
+    }    
+    else{
+        $_SESSION["user"]["zadani"] = $_POST['db'];
+    }
+    $aktualizuj_zadani = $db->prepare("UPDATE nastaveni.uzivatele SET zadani = :db WHERE login = :log");
+    $aktualizuj_zadani->bindvalue(":db", $zdroj_databaze);
+    $aktualizuj_zadani->bindvalue(":log", $cil_databaze);
+    $aktualizuj_zadani->execute();
+    
     $tabulky = $db->prepare("SELECT tab.table_name as nazev, zpu.nazev as zpusob
     FROM information_schema.tables tab
     INNER JOIN nastaveni.export exp
@@ -21,6 +38,7 @@ require 'overeni.php';
     $tabulky->execute();
     $tabulky = $tabulky->fetchAll();
     //vytvoření databázového schéma
+    $smaz = $db->query("DROP DATABASE IF EXISTS ".$cil_databaze);
     $create_db = $db->query('CREATE DATABASE '.$cil_databaze);
         foreach ($tabulky as $tabulka) {   
             $create = $db->query("SHOW CREATE TABLE ".$zdroj_databaze.'.'.$tabulka['nazev']);
@@ -55,7 +73,11 @@ require 'overeni.php';
                 $count = round($count['pocet']/2,0,PHP_ROUND_HALF_DOWN);
                 
                 //mariaDB neumí moc where in (... limit), proto musí být obalena v ještě jednom selectu
+                //tato část je ale zodpovědná za náhodnost v datech - vymaže polovinu záznamů v označených tabulkách
                 $smaz = $db->query("DELETE FROM ".$nazev." WHERE ".$primarni_klic." IN (SELECT * FROM (SELECT ".$primarni_klic." FROM ".$nazev." ORDER BY RAND() LIMIT ".$count.") as t)");
             }
         }
+    if ($stahni_po_vygenerovani == 1){
+        header('Location: generuj_soubory.php');
+    }
 ?>

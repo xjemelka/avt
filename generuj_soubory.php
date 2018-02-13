@@ -9,9 +9,6 @@ require 'overeni.php';
     
     $login = $_SESSION["user"]["login"];
     $zadani = $_SESSION["user"]["zadani"];
-    if (!empty($_POST['db']) && $_SESSION["user"]["typ"] == 1){
-        $zadani = $_POST['db'];
-    }
     $slozka = 'files/'.$login;
     if (!file_exists($slozka)){
         //pokud složka neexistuje pokračuj a založ, pokud existuje, pravděpodobně na to uživatel klikl dvakrát rychle za sebou
