@@ -27,6 +27,8 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
     $format->execute();
     $zpusob = $db->prepare("select id_zpusoby, nazev FROM nastaveni.zpusoby");
     $zpusob->execute();
+    $zadani = $db->prepare("select aktualni_zadani FROM nastaveni.zadani where id_zadani=1");
+    $zadani->execute();
     
     if(!empty($_POST)){
         try {
@@ -71,6 +73,11 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
                         $update->execute();
                     }
                 }
+                if (isset($_POST['aktualni_zadani'])){
+                    $update = $db->prepare("update nastaveni.zadani set aktualni_zadani = :zad where id_zadani = 1");
+                    $update -> bindValue(":zad", $_SESSION['db']);
+                    $update -> execute();
+                }
                 $tplVars['hlaska'] = "Nastavení úspěšně aktualizováno";
                 $tplVars["form"] = $_POST;
             }
@@ -82,6 +89,7 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
     $tplVars["tabulky"] = $tabulky->fetchAll();
     $tplVars["formaty"] = $format->fetchAll();
     $tplVars["zpusoby"] = $zpusob->fetchAll();
+    $tplVars["zadani"] = $zadani->fetch();
     $tplVars["db"] = $_SESSION['db'];
     
     $tplVars["titulek"] = "Nastavení tabulek";

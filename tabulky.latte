@@ -15,7 +15,7 @@
                 {foreach $tabulky as $t}
                     <label class="col-sm-2 control-label">{$t['nazev']}</label>    
                     <select class="form-control" name="{$t['nazev']}_format">
-                        <option value=0 disabled selected>Vyberte formát</option>
+                        <option value=0 disabled selected required>Vyberte formát</option>
                         {foreach $formaty as $f}
                             <option {if !isset($form[$t['nazev'].'_format'])}{if $t['id_formaty']==$f['id_formaty']}selected{/if}
                                     {elseif $form[$t['nazev'].'_format']==$f['id_formaty']}selected{/if}                                                
@@ -23,17 +23,20 @@
                         {/foreach}
                      </select>  
                      <select class="form-control" name="{$t['nazev']}_zpusob">
-                        <option value=0 disabled selected>Vyberte způsob</option>
+                        <option value=0 disabled selected required>Vyberte způsob</option>
                         {foreach $zpusoby as $z}
                             <option {if !isset($form[$t['nazev'].'_zpusob'])}{if $t['id_zpusoby']==$z['id_zpusoby']}selected{/if}
                                     {elseif $form[$t['nazev'].'_zpusob']==$z['id_zpusoby']}selected{/if}                                                
                                     value="{$z['id_zpusoby']}">{$z['nazev']}</option>
                         {/foreach}
                      </select>  
-                     <input class="form-control" type="number" name="{$t['nazev']}_poradi" min="1" max="25" 
+                     <input class="form-control" type="number" name="{$t['nazev']}_poradi" min="1" max="25" required
                             {if isset($form[$t['nazev'].'_poradi'])}value="{$form[$t['nazev'].'_poradi']}" 
                             {else}value={$t['poradi']}{/if} >
                 {/foreach}
+                <label class="checkbox-inline"> 
+                    <input type="checkbox" name="aktualni_zadani" {if isset($form['aktualni_zadani'])}checked{elseif $zadani['aktualni_zadani']==$db}checked {/if}> Aktuální zadání
+                </label>
                 </div>
             </div>
             <div class="form-group">    
