@@ -6,19 +6,23 @@ require 'overeni.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
-    if ($_SESSION["user"]["typ"] != 1 || empty($_POST['db'])){
+    if ($_SESSION["user"]["typ"] != 1 && (empty($_POST['db']) && (empty($_SESSION['novy_student']) || empty($_SESSION['zadani_novy_student']) ))){
         header('Location: index.php');
     }
-    
-    $zdroj_databaze = $_POST['db'];
-    $cil_databaze = $_SESSION["user"]["login"];
-    $stahni_po_vygenerovani = 1;
-    if (!empty($_POST['uzivatel'])){
-        $cil_databaze = $_POST['uzivatel'];
-        $stahni_po_vygenerovani = 0;
+   
+    //pokud nedostane parametr db, tak to není generování dat pro admina a jednoduše projde všechny studentské účty bez vygenerovaných dat
+    if (!empty($_POST['db'])){
+        $zdroj_databaze = $_POST['db'];
+        $cil_databaze = $_SESSION["user"]["login"];
+        $stahni_po_vygenerovani = 1;
+        $_SESSION["user"]["zadani"] = $_POST['db'];
     }    
     else{
-        $_SESSION["user"]["zadani"] = $_POST['db'];
+        $zdroj_databaze = $_SESSION['zadani_novy_student'];
+        $cil_databaze = $_SESSION['novy_student'];
+        $stahni_po_vygenerovani = 0;
+        unset ($_SESSION['zadani_novy_student']);
+        unset ($_SESSION['novy_student']);
     }
     $aktualizuj_zadani = $db->prepare("UPDATE nastaveni.uzivatele SET zadani = :db WHERE login = :log");
     $aktualizuj_zadani->bindvalue(":db", $zdroj_databaze);
@@ -79,5 +83,8 @@ require 'overeni.php';
         }
     if ($stahni_po_vygenerovani == 1){
         header('Location: generuj_soubory.php');
+    }
+    else{
+        header('Location: studenti.php');
     }
 ?>
