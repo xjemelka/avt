@@ -97,7 +97,11 @@ require 'overeni.php';
                     `dotazy_id` int(11) NOT NULL,
                     `text` varchar(1000) NOT NULL,
                     `s_q_l` varchar(1000) NOT NULL,
-                    `odpoved` varchar(200) NULL,
+                    `spravna_odpoved` varchar(200) NOT NULL DEFAULT 'NULL',
+                    `odpoved1` varchar(200) DEFAULT NULL,
+                    `odpoved2` varchar(200) DEFAULT NULL,
+                    `odpoved3` varchar(200) DEFAULT NULL,
+                    `odpoved4` varchar(200) DEFAULT NULL,
                     PRIMARY KEY (`id_otazky`)
                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci");
         $db -> query("use ".$zdroj_databaze);   
@@ -124,11 +128,10 @@ require 'overeni.php';
                     $dotaz_sql = str_replace($dot['promenna'],$promenna[0],$dotaz_sql);
                 }
             }
-            echo $dotaz_sql."</br></br>";
             $odpoved = $db -> query($dotaz_sql);
             $odpoved = $odpoved->fetch();
             $db -> query("use ".$cil_databaze_otazky);
-            $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, odpoved) values (:kat,:dotid,:text,:sql,:odpo)");
+            $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved) values (:kat,:dotid,:text,:sql,:odpo)");
             $otazka -> bindvalue (":kat", $kat['kategorie']);
             $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
             $otazka -> bindvalue (":text", $dotaz_text);
