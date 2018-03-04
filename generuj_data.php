@@ -107,6 +107,7 @@ require 'overeni.php';
         $db -> query("use ".$zdroj_databaze);   
         $kategorie = $db -> query("select distinct kategorie from dotazy order by kategorie");
         $kategorie = $kategorie -> fetchAll();
+        $vygenerovanych_otazek = 0;
         foreach($kategorie as $kat){
             $db -> query("use ".$zdroj_databaze);  
             $dotaz = $db -> prepare("select dotazy_id, text, s_q_l, kategorie, nazev as promenna, dotaz as promenna_sql
@@ -130,15 +131,24 @@ require 'overeni.php';
             }
             $odpoved = $db -> query($dotaz_sql);
             $odpoved = $odpoved->fetch();
+            $odpoved = $odpoved[0];
+            if (!isset($odpoved)){
+                $odpoved = "NULL";
+            }
             $db -> query("use ".$cil_databaze_otazky);
             $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved) values (:kat,:dotid,:text,:sql,:odpo)");
             $otazka -> bindvalue (":kat", $kat['kategorie']);
             $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
             $otazka -> bindvalue (":text", $dotaz_text);
             $otazka -> bindvalue (":sql", $dotaz_sql);
-            $otazka -> bindvalue (":odpo", $odpoved[0]);
+            $otazka -> bindvalue (":odpo", $odpoved);
             $otazka -> execute();
+            $vygenerovanych_otazek++;
         }
+        $max_body = $db -> prepare ("update nastaveni.uzivatele set max_body = :max where login = :log");
+        $max_body -> bindvalue (":max", $vygenerovanych_otazek);
+        $max_body -> bindvalue (":log", $cil_databaze);
+        $max_body -> execute();
         
         header('Location: studenti.php');
     }

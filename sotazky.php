@@ -47,7 +47,7 @@ if ($_SESSION["user"]["typ"] != 2){
                         $odpoved->bindValue(":otaz", $otazka['id_otazky']);
                         $odpoved->execute();
                         if ($_POST[$otazka['id_otazky']] == $otazka['spravna_odpoved']){
-                            $body = $body + 5;
+                            $body = $body + 1;
                         }
                     }
                 }
@@ -66,7 +66,7 @@ if ($_SESSION["user"]["typ"] != 2){
     $db -> query("use ".$_SESSION["user"]["login"]."_otazky");
     $otazky = $db->query("select id_otazky, text, COALESCE(odpoved4,odpoved3,odpoved2,odpoved1) posledni_odpoved, COALESCE(spravna_odpoved = COALESCE(odpoved4,odpoved3,odpoved2,odpoved1),0) zodpovezeno_spravne from otazky order by id_otazky");
     $stav = $db->prepare("select 
-                                    body,
+                                    body,  max_body,
                                     CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
                                         WHEN odpoved4 THEN 4
                                         WHEN odpoved3 THEN 3

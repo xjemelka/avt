@@ -12,7 +12,7 @@ if ($_SESSION["user"]["typ"] != 2){
     header('Location: index.php');
 }
     
-    $tplVars["titulek"] = "Generování souborů";
+    $tplVars["titulek"] = "Zadání projektu";
     $tplVars["navigace"] = 1;
     $tpl->render("sindex.latte", $tplVars);
 ?>

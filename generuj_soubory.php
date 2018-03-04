@@ -6,9 +6,21 @@ require 'overeni.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
-    
+    if ($_SESSION['user']['typ'] == 1 && isset($_POST['login'])){
+        $login = $_POST['login'];
+        $zadani = $db -> prepare("select zadani from nastaveni.uzivatele where login = :log");
+        $zadani -> bindvalue(":log",$login);
+        $zadani -> execute();
+        $zadani = $zadani -> fetch();
+        $zadani = $zadani['zadani'];
+        if (isset($_POST['sql'])){
+            $generuj_sql = 1;
+        }
+    }
+    else{
     $login = $_SESSION["user"]["login"];
     $zadani = $_SESSION["user"]["zadani"];
+    }
     $slozka = 'files/'.$login;
     if (!file_exists($slozka)){
         //pokud složka neexistuje pokračuj a založ, pokud existuje, pravděpodobně na to uživatel klikl dvakrát rychle za sebou
@@ -27,7 +39,12 @@ require 'overeni.php';
         $tabulky = $tabulky->fetchAll();
         
         foreach ($tabulky as $tabulka) {        
-            $format = $tabulka['format'];
+            if (isset($generuj_sql)){
+                $format = "sql";
+            }
+            else{
+                $format = $tabulka['format'];
+            }
             $table = $tabulka['tabulka'];
             $fileName = $table;
             $result = $db->prepare("SELECT * FROM ".$databaze.".".$table);

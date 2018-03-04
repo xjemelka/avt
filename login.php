@@ -18,6 +18,11 @@ if(!empty($_POST['log']) && !empty($_POST['psw'])){
         if($user){
             $hash = sha1($_POST['psw']);
             if($hash == $user['heslo']){
+                if (!isset($user['prvni_prihlaseni'])){
+                    $stmt = $db->prepare("UPDATE uzivatele SET prvni_prihlaseni = now() WHERE login = :log");
+                    $stmt->bindvalue(":log", $_POST['log']);
+                    $stmt->execute();
+                }
                 $_SESSION['user'] = $user;
                 header('Location: index.php');
                 exit;

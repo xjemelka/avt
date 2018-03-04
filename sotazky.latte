@@ -3,8 +3,10 @@
 
 <div class="row">
     <div class="col-sm-12 col-md-12">
-        <p>bodů: {$stav['body']}</p>
+        <p>bodů: {$stav['body']}/{$stav['max_body']}</p>
+        <p>procentuální úspěšnost: {round($stav['body']/$stav['max_body']*100)}%</p>
         <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p>
+        <hr/>
     </div>
     <div class="col-sm-12 col-md-12">
          <form class="form-horizontal" action="sotazky.php" method="POST">

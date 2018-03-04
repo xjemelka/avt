@@ -12,7 +12,7 @@ if ($_SESSION["user"]["typ"] != 1){
     header('Location: index.php');
 }
     
-    $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body,
+    $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body, max_body,
                                 CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
                                     WHEN odpoved4 THEN 4
                                     WHEN odpoved3 THEN 3

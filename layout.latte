@@ -21,9 +21,13 @@
         <nav>
             <ul class="nav nav-tabs">
                 {if !empty($navigace)}
-                    <li {if $navigace==1}class="active"{/if}><a href="index.php">Index</a></li>
-                    {if $user['typ']==1}<li><a href="studenti.php">Přehled studentů</a></li>{/if}
-                    {if $user['typ']==2}<li><a href="sotazky.php">Otázky</a></li>{/if}
+                    {if $user['typ']==1}
+                        <li {if $navigace==1}class="active"{/if}><a href="index.php">Index</a></li>
+                        <li {if $navigace==2}class="active"{/if}><a href="studenti.php">Přehled studentů</a></li>
+                    {else}
+                        <li {if $navigace==1}class="active"{/if}><a href="sindex.php">Index</a></li>
+                        <li {if $navigace==2}class="active"{/if}><a href="sotazky.php">Otázky</a></li>
+                    {/if}
                     {if !empty($user)}<li class="posledni"><a href="logout.php">Logout</a></li>{/if}
                 {/if}
             </ul>
