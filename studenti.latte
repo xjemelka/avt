@@ -29,12 +29,16 @@
                         <th>Student</th>    
                         <th>Email</th>
                         <th>Zadání</th>
+                        <th>Body</th>
+                        <th>Zodpovězeno</th>
                         <th>Odstranit</th>
                         {foreach $studenti as $s}
                             <tr>
                                 <td>{$s['login']}</td>
                                 <td>{$s['email']}</td>
                                 <td>{$s['zadani']}</td>
+                                <td>{$s['body']}</td>
+                                <td>{$s['pocet_odpovedi']}</td>
                                 <td>
                                     <form method="post" action="studenti.php" onsubmit="return confirm('Opravdu chcete smazat uživatele? Bude smazána i jeho databáze!')" >
                                         <input type="hidden" name="smaz_id_uzivatele" value="{$s['id_uzivatele']}" >

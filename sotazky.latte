@@ -1,0 +1,32 @@
+{extends 'layout.latte'}
+{block obsah}
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <p>bodů: {$stav['body']}</p>
+        <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p>
+    </div>
+    <div class="col-sm-12 col-md-12">
+         <form class="form-horizontal" action="sotazky.php" method="POST">
+            <div ">
+                {foreach $otazky as $o}
+                    <div class="form-group col-sm-12 col-md-12">
+                        <p>{$o['id_otazky']}. {$o['text']}</p>   
+                        <div class="col-sm-10">
+                            <input class="form-control" type="text" name={$o['id_otazky']}  {if $o['zodpovezeno_spravne']==1}disabled value="{$o['posledni_odpoved']}"{/if} 
+                                   {if $o['posledni_odpoved']}placeholder="Předchozí odpověď: {$o['posledni_odpoved']}"{/if}
+                                   {if $stav['pocet_odpovedi'] == 4} disabled {/if}/>
+                        </div>
+                    </div>
+                {/foreach}
+            </div>
+            <div class="form-group">    
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Odpovědět" {if $stav['pocet_odpovedi'] == 4} disabled {/if}/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{/block}

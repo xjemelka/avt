@@ -12,7 +12,15 @@ if ($_SESSION["user"]["typ"] != 1){
     header('Location: index.php');
 }
     
-    $studenti = $db->query("SELECT id_uzivatele, login, email, zadani from nastaveni.uzivatele where typ = 2");
+    $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body,
+                                CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
+                                    WHEN odpoved4 THEN 4
+                                    WHEN odpoved3 THEN 3
+                                    WHEN odpoved2 THEN 2
+                                    WHEN odpoved1 THEN 1
+                                    ELSE 0
+                                END AS pocet_odpovedi 
+                            from nastaveni.uzivatele where typ = 2");
     
     if(!empty($_POST['login'])){
         try {
