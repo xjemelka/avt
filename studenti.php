@@ -25,17 +25,17 @@ if ($_SESSION["user"]["typ"] != 1){
     if(!empty($_POST['login'])){
         try {
             $hash = sha1('heslo');
-            $zadani = $db->query('SELECT aktualni_zadani from nastaveni.zadani where id_zadani=1');
+            $zadani = $db->query('SELECT zadani from nastaveni.zadani where aktualni_zadani=1');
             $zadani = $zadani->fetch();
             $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ, zadani) values (:log,:hes,:ema,:typ,:zad)');
             $uzivatel -> bindValue(":log",$_POST['login']);
             $uzivatel -> bindValue(":hes",$hash);
             $uzivatel -> bindValue(":ema",$_POST['login'].'@mendelu.cz');
             $uzivatel -> bindValue(":typ",2);
-            $uzivatel -> bindValue(":zad",$zadani['aktualni_zadani']);
+            $uzivatel -> bindValue(":zad",$zadani['zadani']);
             $uzivatel -> execute();
             $_SESSION['novy_student'] = $_POST['login'];
-            $_SESSION['zadani_novy_student'] = $zadani['aktualni_zadani'];
+            $_SESSION['zadani_novy_student'] = $zadani['zadani'];
             header('Location: generuj_data.php');
         } catch (Exception $e) {
             die($e->getMessage());

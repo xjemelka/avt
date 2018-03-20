@@ -3,7 +3,7 @@
 
 <div class="row">
     <div class="col-sm-12 col-md-12">
-        <p>bodů: {$stav['body']}/{$stav['max_body']}</p>
+        <p>bodů: {$stav['body']+0}/{$stav['max_body']+0}</p>
         <p>procentuální úspěšnost: {round($stav['body']/$stav['max_body']*100)}%</p>
         <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p>
         <hr/>
@@ -13,7 +13,7 @@
             <div ">
                 {foreach $otazky as $o}
                     <div class="form-group col-sm-12 col-md-12">
-                        <p>{$o['id_otazky']}. {$o['text']}</p>   
+                        <p>{$o['id_otazky']}. {$o['text']} (body: {$o['ziskanych_bodu']+0}/{$o['max_bodu']+0})</p>   
                         <div class="col-sm-10">
                             <input class="form-control" type="text" name={$o['id_otazky']}  {if $o['zodpovezeno_spravne']==1}disabled value="{$o['posledni_odpoved']}"{/if} 
                                    {if $o['posledni_odpoved']}placeholder="Předchozí odpověď: {$o['posledni_odpoved']}"{/if}

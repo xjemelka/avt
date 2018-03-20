@@ -98,6 +98,8 @@ require 'overeni.php';
                     `text` varchar(1000) NOT NULL,
                     `s_q_l` varchar(1000) NOT NULL,
                     `spravna_odpoved` varchar(200) NOT NULL DEFAULT 'NULL',
+                    `max_bodu` int(11) NOT NULL,
+                    `ziskanych_bodu` decimal(10,2) NOT NULL DEFAULT 0,
                     `odpoved1` varchar(200) DEFAULT NULL,
                     `odpoved2` varchar(200) DEFAULT NULL,
                     `odpoved3` varchar(200) DEFAULT NULL,
@@ -105,48 +107,57 @@ require 'overeni.php';
                     PRIMARY KEY (`id_otazky`)
                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci");
         $db -> query("use ".$zdroj_databaze);   
-        $kategorie = $db -> query("select distinct kategorie from dotazy order by kategorie");
+        $kategorie = $db -> query("select kategorie_id kategorie, otazek, body from kategorie order by kategorie_id");
         $kategorie = $kategorie -> fetchAll();
-        $vygenerovanych_otazek = 0;
+        $body_celkem = 0;
         foreach($kategorie as $kat){
             $db -> query("use ".$zdroj_databaze);  
-            $dotaz = $db -> prepare("select dotazy_id, text, s_q_l, kategorie, nazev as promenna, dotaz as promenna_sql
-                                        from (select * from dotazy where kategorie = :kat order by rand() limit 1) dotazy
-                                        left join zadani_knihy_otazky.promenne on dotazy.s_q_l like CONCAT('%', promenne.nazev, '%')");
-            $dotaz -> bindvalue (":kat", $kat['kategorie']);
-            $dotaz -> execute();
-            $dotaz = $dotaz->fetchAll();
-            //preg_match_all('/(?<!\w)\$\w+/',$dotaz['s_q_l'],$matches); dá do $matches[0] array všech proměnných
-            $dotaz_dotazyid = $dotaz[0]['dotazy_id'];
-            $dotaz_text = $dotaz[0]['text'];
-            $dotaz_sql = $dotaz[0]['s_q_l'];
-            $db -> query("use ".$cil_databaze);
-            foreach ($dotaz as $dot){
-                if(!empty($dot['promenna'])){
-                    $promenna = $db -> query($dot['promenna_sql']);
-                    $promenna = $promenna->fetch();
-                    $dotaz_text = str_replace($dot['promenna'],$promenna[0],$dotaz_text);
-                    $dotaz_sql = str_replace($dot['promenna'],$promenna[0],$dotaz_sql);
+            $dotazy = $db -> prepare("select dotazy_id from dotazy where kategorie = :kat order by rand() limit ".$kat['otazek']);
+            $dotazy -> bindvalue (":kat", $kat['kategorie']);
+            $dotazy -> execute();
+            $dotazy = $dotazy->fetchAll();
+            foreach($dotazy as $dot){
+                $db -> query("use ".$zdroj_databaze);  
+                $dotaz = $db -> prepare("select dotazy_id, text, s_q_l, kategorie, nazev as promenna, dotaz as promenna_sql
+                                            from dotazy
+                                            left join zadani_knihy_otazky.promenne on dotazy.s_q_l like CONCAT('%', promenne.nazev, '%')
+                                            where dotazy_id = :dot");
+                $dotaz -> bindvalue (":dot", $dot['dotazy_id']);
+                $dotaz -> execute();
+                $dotaz = $dotaz->fetchAll();
+                //preg_match_all('/(?<!\w)\$\w+/',$dotaz['s_q_l'],$matches); dá do $matches[0] array všech proměnných
+                $dotaz_dotazyid = $dotaz[0]['dotazy_id'];
+                $dotaz_text = $dotaz[0]['text'];
+                $dotaz_sql = $dotaz[0]['s_q_l'];
+                $db -> query("use ".$cil_databaze);
+                foreach ($dotaz as $dot){
+                    if(!empty($dot['promenna'])){
+                        $promenna = $db -> query($dot['promenna_sql']);
+                        $promenna = $promenna->fetch();
+                        $dotaz_text = str_replace($dot['promenna'],$promenna[0],$dotaz_text);
+                        $dotaz_sql = str_replace($dot['promenna'],$promenna[0],$dotaz_sql);
+                    }
                 }
+                $odpoved = $db -> query($dotaz_sql);
+                $odpoved = $odpoved->fetch();
+                $odpoved = $odpoved[0];
+                if (!isset($odpoved)){
+                    $odpoved = "NULL";
+                }
+                $db -> query("use ".$cil_databaze_otazky);
+                $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved, max_bodu) values (:kat,:dotid,:text,:sql,:odpo,:bod)");
+                $otazka -> bindvalue (":kat", $kat['kategorie']);
+                $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
+                $otazka -> bindvalue (":text", $dotaz_text);
+                $otazka -> bindvalue (":sql", $dotaz_sql);
+                $otazka -> bindvalue (":odpo", $odpoved);
+                $otazka -> bindvalue (":bod", $kat['body']);
+                $otazka -> execute();
+                $body_celkem=$body_celkem + $kat['body'];
             }
-            $odpoved = $db -> query($dotaz_sql);
-            $odpoved = $odpoved->fetch();
-            $odpoved = $odpoved[0];
-            if (!isset($odpoved)){
-                $odpoved = "NULL";
-            }
-            $db -> query("use ".$cil_databaze_otazky);
-            $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved) values (:kat,:dotid,:text,:sql,:odpo)");
-            $otazka -> bindvalue (":kat", $kat['kategorie']);
-            $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
-            $otazka -> bindvalue (":text", $dotaz_text);
-            $otazka -> bindvalue (":sql", $dotaz_sql);
-            $otazka -> bindvalue (":odpo", $odpoved);
-            $otazka -> execute();
-            $vygenerovanych_otazek++;
         }
         $max_body = $db -> prepare ("update nastaveni.uzivatele set max_body = :max where login = :log");
-        $max_body -> bindvalue (":max", $vygenerovanych_otazek);
+        $max_body -> bindvalue (":max", $body_celkem);
         $max_body -> bindvalue (":log", $cil_databaze);
         $max_body -> execute();
         

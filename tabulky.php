@@ -27,8 +27,9 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
     $format->execute();
     $zpusob = $db->prepare("select id_zpusoby, nazev FROM nastaveni.zpusoby");
     $zpusob->execute();
-    $zadani = $db->prepare("select aktualni_zadani FROM nastaveni.zadani where id_zadani=1");
-    $zadani->execute();
+    $info = $db->prepare("select aktualni_zadani, strhavani FROM nastaveni.zadani where zadani = :zad");
+    $info -> bindValue(":zad", $_SESSION['db']);
+    $info->execute();
     
     if(!empty($_POST)){
         try {
@@ -73,8 +74,25 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
                         $update->execute();
                     }
                 }
+                //pokud zadání nemá záznam mezi nastavením zadání, přidej ho a uprav aktuální/strhávání
+                $existuje = $db -> prepare("select count(*) pocet from nastaveni.zadani where zadani = :zad");
+                $existuje -> bindValue(":zad", $_SESSION['db']);
+                $existuje -> execute();
+                $existuje = $existuje->fetch();
+                if ($existuje['pocet']==0){
+                    $insert = $db->prepare("insert into nastaveni.zadani (zadani) values (:zad)");
+                    $insert -> bindValue(":zad", $_SESSION['db']);
+                    $insert -> execute();
+                }
                 if (isset($_POST['aktualni_zadani'])){
-                    $update = $db->prepare("update nastaveni.zadani set aktualni_zadani = :zad where id_zadani = 1");
+                    $db -> query("update nastaveni.zadani set aktualni_zadani = 0");
+                    $update = $db->prepare("update nastaveni.zadani set aktualni_zadani = 1 where zadani = :zad");
+                    $update -> bindValue(":zad", $_SESSION['db']);
+                    $update -> execute();
+                }
+                if (isset($_POST['strhavani'])){
+                    $update = $db->prepare("update nastaveni.zadani set strhavani = :strh where zadani = :zad");
+                    $update -> bindValue(":strh", $_POST['strhavani']);
                     $update -> bindValue(":zad", $_SESSION['db']);
                     $update -> execute();
                 }
@@ -89,7 +107,7 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_SESSION['db'])){
     $tplVars["tabulky"] = $tabulky->fetchAll();
     $tplVars["formaty"] = $format->fetchAll();
     $tplVars["zpusoby"] = $zpusob->fetchAll();
-    $tplVars["zadani"] = $zadani->fetch();
+    $tplVars["info"] = $info->fetch();
     $tplVars["db"] = $_SESSION['db'];
     
     $tplVars["titulek"] = "Nastavení tabulek";
