@@ -6,7 +6,7 @@ require 'overeni.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
-    if ($_SESSION["user"]["typ"] != 1 && (empty($_POST['db']) && (empty($_SESSION['novy_student']) || empty($_SESSION['zadani_novy_student']) ))){
+    if ($_SESSION["user"]["typ"] != 1 || ((empty($_POST['db']) && (empty($_SESSION['novy_student']) || empty($_SESSION['zadani_novy_student']) )))){
         header('Location: index.php');
     }
    

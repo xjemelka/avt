@@ -32,3 +32,6 @@ Latte/Runtime/ISnippetBridge.php
 Latte/Runtime/SnippetDriver.php
 Latte/Runtime/Template.php
 Latte/Strict.php
+*.zip
+*.zip
+test.php

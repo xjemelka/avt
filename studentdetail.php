@@ -56,6 +56,6 @@ if ($_SESSION["user"]["typ"] != 1 or empty($_GET['student'])){
     
     $tplVars["titulek"] = "Přehled studenta ".$_GET['student'];
     $tplVars["navigace"] = 2;
-    $tpl->render("student.latte", $tplVars);
+    $tpl->render("studentdetail.latte", $tplVars);
 ?>
 
