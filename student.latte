@@ -1,0 +1,77 @@
+{extends 'layout.latte'}
+{block obsah}
+
+
+<div id='welcomeDiv' style='display:none'>asdhfaoeufhouashdfuaheoufhaousfhaouehfousahefauoefh</div>
+
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <p>bodů: {$stav['body']}/{$stav['max_body']}</p>
+        <p>procentuální úspěšnost: {round($stav['body']/$stav['max_body']*100)}%</p>
+        <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p>
+        <p>čas prvního přihlášení: {$stav['prvni_prihlaseni']}</p>
+        {for $i=1; $i<=$stav['pocet_odpovedi']; $i++}
+        <p>odeslání {$i}. odpovědi: {$stav['odpoved'.$i]}</p>
+        {/for}
+        <form class="form-horizontal" action="generuj_soubory.php" method="POST">
+            <div class="form-group">   
+                <input type="hidden" name="login" value="{$stav['login']}" >
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Vygeneruj soubory"/>
+                </div>
+            </div>
+        </form>
+        <form class="form-horizontal" action="generuj_soubory.php" method="POST">
+            <div class="form-group">   
+                <input type="hidden" name="login" value="{$stav['login']}" >
+                <input type="hidden" name="sql" value=1>
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Vygeneruj sql soubory"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-12 col-md-12">
+        <hr/>
+        <form class="form-horizontal col-sm-12 col-md-12" action="student.php" method="POST">
+            <input type="hidden" name="login" value="{$stav['login']}">
+            <span onclick="zobrazOdpovedi()"  class="btn btn-primary">zobrazit všechny odpovědi</span>
+            <a href="studentdetail.php?student={$stav['login']}" class="btn btn-primary">Zobrazit detailní přehled</a>
+                <div class="form-group">
+                    <table class="table table-striped table-hover">
+                        <th class="col-md-1">Otázka</th>    
+                        <th class="col-md-1">Sql</th>
+                        <th class="col-md-2">Správná odpověď</th>
+                        {for $i=1; $i<=$stav['pocet_odpovedi']; $i++}
+                            <th class="col-md-2">{$i}. odpověď</th>
+                        {/for}
+                        <th class="col-md-1">Možných bodů</th>
+                        <th class="col-md-1">Získaných bodů</th>
+
+                        {foreach $otazky as $o}
+                            <tr>
+                                <td title='{$o['text']}'>{$o['id_otazky']}</td>
+                                <td title='{$o['s_q_l']}'>Sql</td>
+                                {if $o['ziskanych_bodu']>0}
+                                    <td>{$o['spravna_odpoved']}</td>
+                                {else}
+                                    <td onclick="zobrazOdpoved({$o['id_otazky']})"><span id="odpoved{$o['id_otazky']}" class="odpoved">Zobraz odpověď</span>
+                                                                             <span id="zobrazenaodpoved{$o['id_otazky']}" class="zobrazenaodpoved" style="display:none">{$o['spravna_odpoved']}</span></td>
+                                {/if}
+                                {for $i=1; $i<=$stav['pocet_odpovedi']; $i++}
+                                    <td {if $o['spravna_pokolikate']==$i}style="background-color:lightgreen"{/if}>{$o['odpoved'.$i]}</td>
+                                {/for}   
+                                <td>{$o['max_bodu']+0}</td>
+                                <td><input class="form-control" type="number" name="body{$o['id_otazky']}" step="0.01" min="0" max="{$o['max_bodu']}" value="{$o['ziskanych_bodu']}" required/></td>
+                            </tr>
+                        {/foreach}
+                    </table>
+                </div>
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Změň ohodnocení"/>
+                </div>
+        </form> 
+    </div>
+</div>
+
+{/block}

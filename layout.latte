@@ -28,6 +28,7 @@
                         <li {if $navigace==1}class="active"{/if}><a href="sindex.php">Index</a></li>
                         <li {if $navigace==2}class="active"{/if}><a href="sotazky.php">Otázky</a></li>
                     {/if}
+                    {if !empty($user)}<li class="posledni" {if $navigace==9}class="active"{/if}><a href="nastaveni.php">Změna hesla</a></li>{/if}
                     {if !empty($user)}<li class="posledni"><a href="logout.php">Logout</a></li>{/if}
                 {/if}
             </ul>

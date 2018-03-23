@@ -12,30 +12,25 @@ if ($_SESSION["user"]["typ"] != 1){
     header('Location: index.php');
 }
     
-    $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body, max_body,
-                                CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
-                                    WHEN odpoved4 THEN 4
-                                    WHEN odpoved3 THEN 3
-                                    WHEN odpoved2 THEN 2
-                                    WHEN odpoved1 THEN 1
-                                    ELSE 0
-                                END AS pocet_odpovedi 
-                            from nastaveni.uzivatele where typ = 2");
-    
     if(!empty($_POST['login'])){
         try {
-            $hash = sha1('heslo');
-            $zadani = $db->query('SELECT zadani from nastaveni.zadani where aktualni_zadani=1');
-            $zadani = $zadani->fetch();
-            $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ, zadani) values (:log,:hes,:ema,:typ,:zad)');
-            $uzivatel -> bindValue(":log",$_POST['login']);
-            $uzivatel -> bindValue(":hes",$hash);
-            $uzivatel -> bindValue(":ema",$_POST['login'].'@mendelu.cz');
-            $uzivatel -> bindValue(":typ",2);
-            $uzivatel -> bindValue(":zad",$zadani['zadani']);
-            $uzivatel -> execute();
-            $_SESSION['novy_student'] = $_POST['login'];
-            $_SESSION['zadani_novy_student'] = $zadani['zadani'];
+            $vstup = ($_POST['login']);
+            if (strpos($vstup, ';') !== false) {
+                $studenti = explode(";", $vstup);
+            }
+            else{
+                $studenti = array();
+                $studenti[0] = $vstup;
+            }
+            foreach ($studenti as $student){
+                $hash = sha1('heslo');
+                $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ) values (:log,:hes,:ema,:typ)');
+                $uzivatel -> bindValue(":log",$student);
+                $uzivatel -> bindValue(":hes",$hash);
+                $uzivatel -> bindValue(":ema",$student.'@mendelu.cz');
+                $uzivatel -> bindValue(":typ",2);
+                $uzivatel -> execute();
+            }
             header('Location: generuj_data.php');
         } catch (Exception $e) {
             die($e->getMessage());
@@ -50,9 +45,20 @@ if ($_SESSION["user"]["typ"] != 1){
              $smaz -> execute();
              header('Location: studenti.php');
          } catch (Exception $ex) {
-            die($e->getMessage());
+            die($ex->getMessage());
          }
     }
+    
+        $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body, max_body,
+                                CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
+                                    WHEN odpoved4 THEN 4
+                                    WHEN odpoved3 THEN 3
+                                    WHEN odpoved2 THEN 2
+                                    WHEN odpoved1 THEN 1
+                                    ELSE 0
+                                END AS pocet_odpovedi 
+                            from nastaveni.uzivatele where typ = 2");
+    
 
     $tplVars["studenti"] = $studenti->fetchAll();
     

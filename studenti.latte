@@ -6,7 +6,6 @@
         {$hlaska}
     </p>
 {/if}
-
 <div class="row">
     <div class="col-sm-12 col-md-6">
         <form class="form-horizontal" action="studenti.php" method="POST">
@@ -30,14 +29,23 @@
                         <th>Zadání</th>
                         <th>Úspěšnost</th>
                         <th>Zodpovězeno</th>
+                        <th>Změna hesla</th>
                         <th>Odstranit</th>
                         {foreach $studenti as $s}
                             <tr>
-                                <td><a href="./studentdetail.php?student={$s['login']}">{$s['login']}</a></td>
+                                <td><a href="./student.php?student={$s['login']}">{$s['login']}</a></td>
                                 <td>{$s['email']}</td>
                                 <td>{$s['zadani']}</td>
                                 <td>{if $s['max_body']==0}0%{else}{round($s['body']/$s['max_body']*100)}%{/if}</td>
                                 <td>{$s['pocet_odpovedi']}x</td>
+                                <td>
+                                    <form method="get" action="nastaveni.php">
+                                        <input type="hidden" name="login" value="{$s['login']}" >
+                                        <button class="btn btn-warning btn-xs" type="submit">
+                                            <span class="glyphicon glyphicon-lock"></span> Změnit heslo
+                                        </button>     
+                                    </form>    
+                                </td>
                                 <td>
                                     <form method="post" action="studenti.php" onsubmit="return confirm('Opravdu chcete smazat uživatele? Bude smazána i jeho databáze!')" >
                                         <input type="hidden" name="smaz_id_uzivatele" value="{$s['id_uzivatele']}" >
