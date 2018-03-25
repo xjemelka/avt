@@ -104,4 +104,25 @@ function zobrazOdpovedi() {
         elements[i].style.display = "block";
     }
 }
+
+function zobrazSql(id) {
+   document.getElementById('sql'+id).style.display = "table-row";
+   document.getElementById('zadani'+id).rowSpan = "2";
+   document.getElementById('zobraz'+id).style.display = "none";
+}
+
+function zobrazSqlka() {
+   var elements = document.getElementsByClassName('sql');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "table-row";
+    }
+   var elements = document.getElementsByClassName('zadani');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].rowSpan = "2";
+    }
+   var elements = document.getElementsByClassName('zobraz');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "none";
+    }
+}
 </script>

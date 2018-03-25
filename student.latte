@@ -36,7 +36,7 @@
         <form class="form-horizontal col-sm-12 col-md-12" action="student.php" method="POST">
             <input type="hidden" name="login" value="{$stav['login']}">
             <span onclick="zobrazOdpovedi()"  class="btn btn-primary">zobrazit všechny odpovědi</span>
-            <a href="studentdetail.php?student={$stav['login']}" class="btn btn-primary">Zobrazit detailní přehled</a>
+            <span onclick="zobrazSqlka()"  class="btn btn-primary">zobrazit všechny SQL příkazy</span>
                 <div class="form-group">
                     <table class="table table-striped table-hover">
                         <th class="col-md-1">Otázka</th>    
@@ -50,8 +50,8 @@
 
                         {foreach $otazky as $o}
                             <tr>
-                                <td title='{$o['text']}'>{$o['id_otazky']}</td>
-                                <td title='{$o['s_q_l']}'>Sql</td>
+                                <td id="zadani{$o['id_otazky']}" class="zadani" title='{$o['text']}'>{$o['id_otazky']}</td>
+                                <td onclick="zobrazSql({$o['id_otazky']})"><span id="zobraz{$o['id_otazky']}" class="zobraz" >Zobraz sql</span></td>
                                 {if $o['ziskanych_bodu']>0}
                                     <td>{$o['spravna_odpoved']}</td>
                                 {else}
@@ -63,6 +63,10 @@
                                 {/for}   
                                 <td>{$o['max_bodu']+0}</td>
                                 <td><input class="form-control" type="number" name="body{$o['id_otazky']}" step="0.01" min="0" max="{$o['max_bodu']}" value="{$o['ziskanych_bodu']}" required/></td>
+                            </tr>
+                            <tr id="sql{$o['id_otazky']}" class="sql" style="display:none">
+                                <td></td>
+                                <td colspan="42" >{$o['s_q_l']}</td>
                             </tr>
                         {/foreach}
                     </table>

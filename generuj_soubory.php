@@ -232,7 +232,7 @@ require 'overeni.php';
                     break;
                 case "html":
                     $content .= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html>';
-                    $content .= '<head><meta http-equiv="content-type" content="text/html; charset=windows-1250"><title>'.$table.'</title>';
+                    $content .= '<head><meta http-equiv="content-type" content="text/html; charset=UTF-8"><title>'.$table.'</title>';
                     $content .= '</head><body><table>';
                     $columns = $db->prepare('SELECT column_name
                                                         FROM information_schema.columns
