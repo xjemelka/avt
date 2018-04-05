@@ -195,6 +195,72 @@ require 'overeni.php';
                     $fileName = $fileName.".json";
                     file_put_contents($slozka.'/'.$fileName, $content);
                     break;
+                case "xml":
+                    $primary_keys = $db->prepare('SELECT column_name
+                                                        FROM information_schema.columns
+                                                          where table_name = :t
+                                                          and table_schema = :db
+                                                          and column_key = "PRI"');
+                                $primary_keys -> bindValue(":t",$table);
+                                $primary_keys -> bindValue(":db",$databaze);
+                                $primary_keys -> execute();
+                    $primary_amount = $primary_keys->rowCount();
+                    if ($primary_amount=1){
+                        $primary_key = $primary_keys->fetch();
+                        $primary_key = $primary_key[0];
+                    }
+                    else{
+                        $primary_key = "";
+                    }
+                                
+                    $columns = $db->prepare('SELECT column_name
+                                                        FROM information_schema.columns
+                                                          where table_name = :t
+                                                          and table_schema = :db');
+                    $columns -> bindValue(":t",$table);
+                    $columns -> bindValue(":db",$databaze);
+                    $columns -> execute();
+                    $column_amount  =   $columns->rowCount();
+                    $column_names = array();
+                    for ($j=0; $j<$column_amount; $j++){
+                        $column = $columns->fetch(PDO::FETCH_NUM);
+                        array_push($column_names, $column[0]);
+                    }
+                    for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
+                    {
+                        
+                        while($row = $result->fetch(PDO::FETCH_NUM))
+                        {   
+                            if ($primary_key!=""){
+                                for($j=0; $j<$fields_amount; $j++)  
+                                { 
+                                    if ($column_names[$j]==$primary_key){
+                                        $id = " ".$primary_key."='".$row[$j]."'";
+                                        //break;
+                                    }
+                                }
+                            }
+                            else{
+                                $id = "";
+                            }
+                            $content .= '  <'.$table.$id.'>'."\r\n";
+                            for($j=0; $j<$fields_amount; $j++)  
+                            { 
+                                $row[$j] = str_replace("\n","\\n", addslashes($row[$j]) ); 
+                                if (isset($row[$j]))
+                                {
+                                    if ($row[$j]!="" && $column_names[$j]!=$primary_key){
+                                        $content .= '    <'.$column_names[$j].'>'.$row[$j].'</'.$column_names[$j].'>'; 
+                                        $content.= "\r\n";
+                                    } 
+                                }
+                            }
+                            $content .= '  </'.$table.'>'."\r\n";
+                        }
+                    }
+                    $fileName = $fileName.".xml";
+                    file_put_contents($slozka.'/'.$fileName, $content);
+                    break;    
                 case "csv":
                     for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
                     {

@@ -47,7 +47,6 @@ if ($_SESSION["user"]["typ"] != 2){
                 $zodpovezeno = 0;
                 foreach ($otazky as $otazka) {
                     if (!empty($_POST[$otazka['id_otazky']]) || is_numeric($_POST[$otazka['id_otazky']])){
-                        echo $_POST[$otazka['id_otazky']];
                         $ziskanych_bodu = 0;
                         if ($_POST[$otazka['id_otazky']] == $otazka['spravna_odpoved']){
                             $ziskanych_bodu = round($otazka['max_bodu']*(1-$strhavani),2);

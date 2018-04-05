@@ -36,10 +36,9 @@ if(!empty($_POST['psw1'])){
         
         $user = $stmt->fetch();
         if($user){
-            $hash = sha1($_POST['psw']);
-            if($hash == $user['heslo'] || $zmena_studenta!=""){
+            if(password_verify($_POST['psw'],$user['heslo']) || $zmena_studenta!=""){
                 if ($_POST['psw1']==$_POST['psw2']){
-                    $hash = sha1($_POST['psw1']);
+                    $hash = password_hash($_POST['psw1'], PASSWORD_DEFAULT);
                     $update = $db -> prepare("update nastaveni.uzivatele set heslo = :hes where login = :log");
                     $update -> bindValue(":hes",$hash);
                     $update -> bindValue(":log",$user['login']);

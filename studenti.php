@@ -23,7 +23,7 @@ if ($_SESSION["user"]["typ"] != 1){
                 $studenti[0] = $vstup;
             }
             foreach ($studenti as $student){
-                $hash = sha1('heslo');
+                $hash = password_hash("heslo", PASSWORD_DEFAULT);
                 $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ) values (:log,:hes,:ema,:typ)');
                 $uzivatel -> bindValue(":log",$student);
                 $uzivatel -> bindValue(":hes",$hash);

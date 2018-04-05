@@ -35,8 +35,10 @@
         <hr/>
         <form class="form-horizontal col-sm-12 col-md-12" action="student.php" method="POST">
             <input type="hidden" name="login" value="{$stav['login']}">
-            <span onclick="zobrazOdpovedi()"  class="btn btn-primary">zobrazit všechny odpovědi</span>
-            <span onclick="zobrazSqlka()"  class="btn btn-primary">zobrazit všechny SQL příkazy</span>
+            <div class="form-group">   
+                <span onclick="zobrazOdpovedi()"  class="btn btn-primary">zobrazit všechny odpovědi</span>
+                <span onclick="zobrazSqlka()"  class="btn btn-primary">zobrazit všechny SQL příkazy</span>
+            </div>   
                 <div class="form-group">
                     <table class="table table-striped table-hover">
                         <th class="col-md-1">Otázka</th>    
@@ -66,7 +68,7 @@
                             </tr>
                             <tr id="sql{$o['id_otazky']}" class="sql" style="display:none">
                                 <td></td>
-                                <td colspan="42" >{$o['s_q_l']}</td>
+                                <td colspan="{2+$stav['pocet_odpovedi']}" >{$o['s_q_l']}</td>
                             </tr>
                         {/foreach}
                     </table>
