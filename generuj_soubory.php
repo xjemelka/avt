@@ -52,6 +52,11 @@ require 'overeni.php';
             $fields_amount = $result->columnCount();
             $rows_num = $result->rowCount();
             $content = "";
+            if ($format=="nahodny"){
+                $format = $db->query('SELECT nazev from nastaveni.formaty where nazev<>"nahodny" order by rand() limit 1');
+                    $format = $format->fetch();
+                    $format = $format['nazev'];
+            }
             switch ($format) {
                 case "sql":
                     for ($i = 0, $st_counter = 0; $i < $fields_amount;   $i++, $st_counter=0) 
