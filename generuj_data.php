@@ -83,9 +83,8 @@ require 'overeni.php';
                 $count = $count->fetch();
                 $count = round($count['pocet']/2,0,PHP_ROUND_HALF_DOWN);
                 
-                //mariaDB neumí moc where in (... limit), proto musí být obalena v ještě jednom selectu
                 //tato část je ale zodpovědná za náhodnost v datech - vymaže polovinu záznamů v označených tabulkách
-                $smaz = $db->query("DELETE FROM ".$nazev." WHERE ".$primarni_klic." IN (SELECT * FROM (SELECT ".$primarni_klic." FROM ".$nazev." ORDER BY RAND() LIMIT ".$count.") as t)");
+                $smaz = $db->query("DELETE FROM ".$nazev." ORDER BY RAND() LIMIT ".$count);
             }
         }
         if ($stahni_po_vygenerovani == 1){
