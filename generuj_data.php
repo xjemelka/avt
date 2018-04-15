@@ -142,6 +142,7 @@ require 'overeni.php';
                             $promenna = $db -> query($dot['promenna_sql']);
                             $promenna = $promenna->fetch();
                             $dotaz_text = str_replace($dot['promenna'],$promenna[0],$dotaz_text);
+                            $promenna[0] = str_replace("'","''", $promenna[0]);
                             $dotaz_sql = str_replace($dot['promenna'],$promenna[0],$dotaz_sql);
                         }
                     }

@@ -52,7 +52,7 @@ if ($_SESSION["user"]["typ"] != 1 || (empty($_GET['student']) && empty($_POST['l
     
     $db -> query("use ".$_GET['student']."_otazky");
     $otazky = $db->query("select id_otazky, max_bodu, ziskanych_bodu, text, s_q_l, odpoved1, odpoved2, odpoved3, odpoved4, spravna_odpoved, 
-                                CASE spravna_odpoved
+                                CASE BINARY spravna_odpoved
                                     WHEN odpoved4 THEN 4
                                     WHEN odpoved3 THEN 3
                                     WHEN odpoved2 THEN 2
@@ -107,8 +107,7 @@ function zobrazOdpovedi() {
 
 function zobrazSql(id) {
    document.getElementById('sql'+id).style.display = "table-row";
-   document.getElementById('zadani'+id).rowSpan = "2";
-   document.getElementById('zobraz'+id).style.display = "none";
+   document.getElementById('zobrazSql'+id).style.display = "none";
 }
 
 function zobrazSqlka() {
@@ -116,13 +115,54 @@ function zobrazSqlka() {
    for (var i = 0; i < elements.length; i++) {
         elements[i].style.display = "table-row";
     }
-   var elements = document.getElementsByClassName('zadani');
-   for (var i = 0; i < elements.length; i++) {
-        elements[i].rowSpan = "2";
-    }
-   var elements = document.getElementsByClassName('zobraz');
+   var elements = document.getElementsByClassName('zobrazSql');
    for (var i = 0; i < elements.length; i++) {
         elements[i].style.display = "none";
+    }
+}
+
+function zobrazText(id) {
+   document.getElementById('text'+id).style.display = "table-row";
+   document.getElementById('zobrazText'+id).style.display = "none";
+}
+
+function zobrazTexty(){
+    var elements = document.getElementsByClassName('text');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "table-row";
+    }
+   var elements = document.getElementsByClassName('zobrazText');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "none";
+    }
+}
+
+function skryjVse() {
+   var elements = document.getElementsByClassName('odpoved');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "block";
+    }
+   var elements = document.getElementsByClassName('zobrazenaodpoved');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "none";
+    }
+        
+   var elements = document.getElementsByClassName('sql');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "none";
+    }
+   var elements = document.getElementsByClassName('zobrazSql');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "block";
+    }
+    
+    var elements = document.getElementsByClassName('text');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "none";
+    }
+   var elements = document.getElementsByClassName('zobrazText');
+   for (var i = 0; i < elements.length; i++) {
+        elements[i].style.display = "block";
     }
 }
 </script>

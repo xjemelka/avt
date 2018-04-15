@@ -23,13 +23,22 @@ if ($_SESSION["user"]["typ"] != 1){
                 $studenti[0] = $vstup;
             }
             foreach ($studenti as $student){
-                $hash = password_hash("heslo", PASSWORD_DEFAULT);
-                $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ) values (:log,:hes,:ema,:typ)');
-                $uzivatel -> bindValue(":log",$student);
-                $uzivatel -> bindValue(":hes",$hash);
-                $uzivatel -> bindValue(":ema",$student.'@mendelu.cz');
-                $uzivatel -> bindValue(":typ",2);
-                $uzivatel -> execute();
+                $student = trim($student);
+                if (strlen($student)>0){
+                    $existuje = $db -> prepare("select count(*) pocet from nastaveni.uzivatele where login = :log");
+                    $existuje->bindValue(":log", $student);
+                    $existuje->execute();
+                    $existuje = $existuje->fetch();
+                    if ($existuje['pocet']==0){
+                        $hash = password_hash("heslo", PASSWORD_DEFAULT);
+                        $uzivatel = $db->prepare('INSERT into nastaveni.uzivatele (login, heslo, email, typ) values (:log,:hes,:ema,:typ)');
+                        $uzivatel -> bindValue(":log",$student);
+                        $uzivatel -> bindValue(":hes",$hash);
+                        $uzivatel -> bindValue(":ema",$student.'@mendelu.cz');
+                        $uzivatel -> bindValue(":typ",2);
+                        $uzivatel -> execute();
+                    }
+                }
             }
             header('Location: generuj_data.php');
         } catch (Exception $e) {

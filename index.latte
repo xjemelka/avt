@@ -6,9 +6,9 @@
         <form class="form-horizontal" action="index.php" method="POST">
             <div class="col-sm-10">
                 <div class="form-group">
-                <label class="col-sm-2 control-label">Databáze</label>    
+                <label class="col-sm-2 control-label">Zadání</label>    
                     <select class="form-control" name="db">
-                        <option value="" disabled selected>Vyberte databázi</option>
+                        <option value="" disabled selected>Vyberte databázi zadání</option>
                         {foreach $databaze as $d}
                             <option value="{$d['nazev']}">{$d['nazev']}</option>
                         {/foreach}

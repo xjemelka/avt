@@ -48,13 +48,17 @@ if ($_SESSION["user"]["typ"] != 2){
                 foreach ($otazky as $otazka) {
                     if (!empty($_POST[$otazka['id_otazky']]) || is_numeric($_POST[$otazka['id_otazky']])){
                         $ziskanych_bodu = 0;
-                        if ($_POST[$otazka['id_otazky']] == $otazka['spravna_odpoved']){
+                        $vstup = $_POST[$otazka['id_otazky']];
+                        if(strcasecmp($vstup, "NULL") == 0){
+                            $vstup = "NULL";                            
+                        }
+                        if (strcmp($vstup, $otazka['spravna_odpoved']) == 0){
                             $ziskanych_bodu = round($otazka['max_bodu']*(1-$strhavani),2);
                             $body = $body + $ziskanych_bodu;
                         }
                         $zodpovezeno++;
                         $odpoved = $db -> prepare("update otazky set ".$odpoved_cislo."= :odpo, ziskanych_bodu= :bod where id_otazky = :otaz");
-                        $odpoved->bindValue(":odpo", $_POST[$otazka['id_otazky']]);
+                        $odpoved->bindValue(":odpo", $vstup);
                         $odpoved->bindValue(":bod", $ziskanych_bodu);
                         $odpoved->bindValue(":otaz", $otazka['id_otazky']);
                         $odpoved->execute();
@@ -73,7 +77,7 @@ if ($_SESSION["user"]["typ"] != 2){
     }
     
     $db -> query("use ".$_SESSION["user"]["login"]."_otazky");
-    $otazky = $db->query("select id_otazky, text, max_bodu, ziskanych_bodu, COALESCE(odpoved4,odpoved3,odpoved2,odpoved1) posledni_odpoved, COALESCE(spravna_odpoved = COALESCE(odpoved4,odpoved3,odpoved2,odpoved1),0) zodpovezeno_spravne from otazky order by id_otazky");
+    $otazky = $db->query("select id_otazky, text, max_bodu, ziskanych_bodu, COALESCE(odpoved4,odpoved3,odpoved2,odpoved1) posledni_odpoved, COALESCE(BINARY spravna_odpoved = COALESCE(odpoved4,odpoved3,odpoved2,odpoved1),0) zodpovezeno_spravne from otazky order by id_otazky");
     $stav = $db->prepare("select 
                                     body,  max_body,
                                     CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)

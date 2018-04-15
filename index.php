@@ -14,9 +14,10 @@ if ($_SESSION["user"]["typ"] != 1){
     $stmt = $db->query("SELECT schema_name AS nazev
     FROM information_schema.SCHEMATA
     WHERE schema_name NOT IN ('nastaveni', 'information_schema', 'mysql', 'performance_schema', 'phpmyadmin')
-    AND schema_name LIKE 'zadani_%'");
-
-    $tplVars["titulek"] = "Výběr databáze";
+    AND schema_name LIKE 'zadani\_%'
+    AND schema_name NOT LIKE '%\_otazky'");
+    
+    $tplVars["titulek"] = "Přehled zadání";
     $tplVars["databaze"] = $stmt->fetchAll();
 
 
