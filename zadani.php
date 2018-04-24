@@ -48,5 +48,5 @@ if ($_SESSION["user"]["typ"] != 1){
 
 
     $tplVars["navigace"] = 1;
-    $tpl->render("index.latte", $tplVars);
+    $tpl->render("zadani.latte", $tplVars);
 ?>

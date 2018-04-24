@@ -2,7 +2,7 @@
 
 require 'start.php';
 require 'overeni.php';
-
+require 'tfpdf.php';
 
 /* @var $db PDO */
 /* @tpl Latte\Engine */
@@ -351,6 +351,47 @@ require 'overeni.php';
                     break;
             }
         }
+        //vygeneruj pdf se zadáním
+        $pdf = new tFPDF();
+        $pdf->AddPage();
+        $pdf->AddFont('DejaVu','','DejaVuSansCondensed.ttf',true);
+
+        $pdf->SetFont('DejaVu','',16);
+        $pdf->Cell(0,0,'2. projekt do DBS');
+        $pdf->Ln(15);
+
+        $pdf->SetFont('DejaVu','',14);
+        $pdf->Cell(0,0,'Logický model');
+        $pdf->Ln(10);
+        $obrazek = 'files/'.$zadani.'.png';
+        if (file_exists($obrazek)){
+            $pdf->Image($obrazek,null,null,0,($pdf-> w)-40);
+            $pdf->Ln(10);
+        }
+
+        $pdf->Cell(0,0,'Zadání');
+        $pdf->Ln(10);
+        $text = $db->prepare("select text from nastaveni.zadani where zadani= :zad");
+        $text ->bindValue(":zad", $zadani);
+        $text ->execute();
+        $text = $text->fetch();
+        $pdf->SetFont('DejaVu','',10);
+        $pdf->MultiCell(0,5,$text['text'],0,1);
+        $pdf->Ln(10);
+
+        $pdf->SetFont('DejaVu','',14);
+        $pdf->Cell(0,0,'Příklady k řešení');
+        $pdf->Ln(10);
+        $pdf->SetFont('DejaVu','',10);
+        $db -> query("use ".$databaze."_otazky");  
+        $otazky = $db->query("select id_otazky,text,max_bodu from otazky order by id_otazky");
+        $otazky = $otazky->fetchAll();
+        foreach($otazky as $otazka){
+            $pdf->MultiCell(0,5,$otazka['id_otazky'].". ".$otazka['text']." [".$otazka['max_bodu']."b]",0,1);
+            $pdf->Ln(5);
+        }
+        $pdf->Output($slozka.'/zadani.pdf');
+        
         //zazipuj všechny soubory ve složce a stáhni
         $zip = new ZipArchive;
         $download = $slozka.'.zip';

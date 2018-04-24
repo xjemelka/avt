@@ -1,0 +1,87 @@
+{extends 'layout.latte'}
+{block obsah}
+
+{if !empty($hlaska)}
+    <p>
+        {$hlaska}
+    </p>
+{/if}
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+     <div class="col-sm-12 col-md-6">
+        <form class="form-horizontal" action="otazky.php" method="POST">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Název</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="text" name="nazev" value="{$kategorie['nazev']}" required/>
+                </div>
+            </div>  
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Maximum bodů</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="number" name="body" value="{$kategorie['body']}"  step="0.1" min="0" required/>
+                </div>
+            </div>  
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Vygenerovaných dotazů</label>
+                <div class="col-sm-10">
+                    <input class="form-control" type="number" name="otazek" value="{$kategorie['otazek']}"  step="1" min="0" required/>
+                </div>
+            </div>  
+            <div class="form-group">    
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Uprav nastavení" />
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+    <div class="col-sm-12 col-md-6">
+        <form class="form-horizontal" action="otazky.php" method="POST">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Text</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" type="text" name="text" required cols="40" rows="5"></textarea>
+                </div>
+            </div>  
+            <div class="form-group">
+                <label class="col-sm-2 control-label">SQL</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" type="text" name="sql" required cols="40" rows="5"></textarea>
+                </div>
+            </div>  
+            <div class="form-group">    
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="submit" type="submit" value="Vytvoř dotaz" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <form class="form-horizontal col-sm-12 col-md-12" action="otazky.php" method="POST" onsubmit="return confirm('Všechny otázky s prázdným textem nebo sql budou smazány, opravdu pokračovat?')" >
+    <div class="col-sm-12 col-md-12">
+                <div class="form-group">
+                    <table class="table table-striped table-hover">
+                        <th>ID otázky</th>
+                        <th>Text</th>
+                        <th>SQL</th>
+                        {foreach $otazky as $o}
+                            <tr>
+                                <td>{$o['dotazy_id']}</td>
+                                <td>
+                                    <textarea class="form-control" type="text" name="text{$o['dotazy_id']}" cols="40" rows="5">{$o['text']}</textarea>
+                                </td>
+                                <td>
+                                    <textarea class="form-control" type="text" name="sql{$o['dotazy_id']}" cols="40" rows="5">{$o['s_q_l']}</textarea>
+                                </td>
+                            </tr>
+                        {/foreach}
+                    </table>
+                </div>
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="update" type="submit" value="Změň otázky"/>
+                </div>
+    </div>
+    </form>
+</div>
+
+{/block}
