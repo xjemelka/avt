@@ -1,0 +1,61 @@
+{extends 'layout.latte'}
+{block obsah}
+
+{if !empty($hlaska)}
+    <p>
+        {$hlaska}
+    </p>
+{/if}
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <form class="form-horizontal" action="definice.php" method="POST">
+            <div class="col-sm-10">
+                <div class="form-group">
+                    <label class="control-label">Procentuální strhávání bodů po každém zodpovězení</label>
+                    <textarea class="form-control"cols="40" rows="15" name="text" required>{$info['text']}</textarea>
+                </div>  
+                <div class="form-group">
+                    <label class="control-label">Procentuální strhávání bodů po každém zodpovězení</label>
+                    <input class="form-control" type="number" name="strhavani" min="0" max="20" value="{$info['strhavani']}" required/>
+                </div>  
+                <div class="form-group">
+                <label class="checkbox-inline"> 
+                    <input type="checkbox" name="aktualni_zadani" {if $info['aktualni_zadani']==1}checked disabled{/if}> Aktuální zadání
+                </label>
+                </div>
+            </div>
+            <div class="form-group">    
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="nastaveni" type="submit" value="Uložit" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm-12 col-md-12">
+        <form class="form-horizontal" action="definice.php" method="post" enctype="multipart/form-data">
+            <div class="col-sm-10 form-group">
+            <label class="control-label">Současný ERD obrázek</label>
+            </div>
+            <div class="col-sm-10 form-group">
+            {if $obrazek == ""}
+                Zadání neobsahuje žádný ERD obrázek
+            {else}
+                <img src="files/zadani_knihy.png" class="img-fluid img-thumbnail ">
+            {/if}
+            
+                <div class="col-sm-10 form-group">
+                    <label class="control-label">Nový ERD obrázek</label>
+                    <input class="form-control-file" type="file" name="fileToUpload" id="fileToUpload">
+                </div>
+            </div>    
+            <div class="form-group">    
+                <div class="col-sm-10">
+                    <input class="btn btn-primary" name="image" type="submit" value="Uložit" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{/block}
