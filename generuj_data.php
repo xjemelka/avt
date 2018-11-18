@@ -37,12 +37,14 @@ require 'overeni.php';
         $aktualizuj_zadani->execute();
 
         $tabulky = $db->prepare("SELECT tab.table_name as nazev, zpu.nazev as zpusob
-        FROM information_schema.tables tab
+        FROM nastaveni.zadani zad
+        JOIN information_schema.tables tab
+        ON tab.table_schema = zad.zadani
         INNER JOIN nastaveni.export exp
-        ON tab.table_schema = exp.databaze AND tab.table_name = exp.tabulka
+        ON tab.table_name = exp.tabulka AND zad.id_zadani = exp.id_zadani
         INNER JOIN nastaveni.zpusoby zpu
         ON exp.id_zpusoby = zpu.id_zpusoby
-        WHERE tab.table_schema= :db
+        WHERE zadani = :db
         AND tab.table_type='BASE TABLE'
         ORDER BY exp.poradi");
         $tabulky->bindvalue(":db", $zdroj_databaze);

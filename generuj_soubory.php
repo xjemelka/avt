@@ -28,11 +28,14 @@ require 'tfpdf.php';
         $databaze = $login;
         $tabulky = $db->prepare("SELECT exp.tabulka, form.nazev as format, zpu.nazev as zpusob
         FROM nastaveni.export exp
+        INNER JOIN nastaveni.zadani zad
+        ON exp.id_zadani = zad.id_zadani
         INNER JOIN nastaveni.formaty form
         ON exp.id_formaty = form.id_formaty
         INNER JOIN nastaveni.zpusoby zpu
         ON exp.id_zpusoby = zpu.id_zpusoby
-        WHERE exp.databaze = :db");
+        WHERE zad.zadani = :db");
+        
         //tady je potřeba nabindovat databázi zadání! ne studentovu
         $tabulky->bindvalue(":db", $zadani);
         $tabulky->execute();
