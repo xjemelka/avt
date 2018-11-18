@@ -20,9 +20,10 @@ require 'overeni.php';
         $_SESSION["user"]["zadani"] = $_POST['db'];
     }    
     else{
-        $zadani = $db->query('SELECT zadani from nastaveni.zadani where aktualni_zadani=1');
+        $zadani = $db->query('SELECT zadani, id_zadani from nastaveni.zadani where aktualni_zadani=1');
         $zadani = $zadani->fetch();
         $zdroj_databaze = $zadani['zadani'];
+        $zdroj_databaze_id = $zadani['id_zadani'];
         $uzivatele_bez_dat = $db->query('select login from nastaveni.uzivatele where zadani is null and typ != 1');
         $uzivatele_bez_dat = $uzivatele_bez_dat -> fetchAll();
         //$cil_databaze = $_SESSION['novy_student'];
@@ -96,7 +97,6 @@ require 'overeni.php';
         else{
             //část s dotazy    
             $cil_databaze_otazky = $cil_databaze.'_otazky';
-            $zdroj_databaze_otazky = $zdroj_databaze.'_otazky';
             $smaz = $db->query("DROP DATABASE IF EXISTS ".$cil_databaze_otazky);
             $create_db = $db->query('CREATE DATABASE '.$cil_databaze_otazky);
             $db -> query("use ".$cil_databaze_otazky);   
@@ -115,27 +115,28 @@ require 'overeni.php';
                         `odpoved4` varchar(200) DEFAULT NULL,
                         PRIMARY KEY (`id_otazky`)
                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci");
-            $db -> query("use ".$zdroj_databaze_otazky);   
-            $kategorie = $db -> query("select kategorie_id kategorie, otazek, body from kategorie order by kategorie_id");
+            $db -> query("use nastaveni");  
+            $kategorie = $db -> prepare("select id_kategorie, otazek, body from kategorie where id_zadani = :zad order by id_kategorie");
+            $kategorie -> bindvalue (":zad", $zdroj_databaze_id);
+            $kategorie -> execute();
             $kategorie = $kategorie -> fetchAll();
             $body_celkem = 0;
             foreach($kategorie as $kat){
-                $db -> query("use ".$zdroj_databaze_otazky);  
-                $dotazy = $db -> prepare("select dotazy_id from dotazy where kategorie = :kat order by rand() limit ".$kat['otazek']);
-                $dotazy -> bindvalue (":kat", $kat['kategorie']);
+                $db -> query("use nastaveni"); 
+                $dotazy = $db -> prepare("select id_dotazy from dotazy where id_kategorie = :kat order by rand() limit ".$kat['otazek']);
+                $dotazy -> bindvalue (":kat", $kat['id_kategorie']);
                 $dotazy -> execute();
                 $dotazy = $dotazy->fetchAll();
                 foreach($dotazy as $dot){
-                    $db -> query("use ".$zdroj_databaze_otazky);  
-                    $dotaz = $db -> prepare("select dotazy_id, text, s_q_l, kategorie, nazev as promenna, dotaz as promenna_sql
+                    $dotaz = $db -> prepare("select id_dotazy, text, s_q_l, id_kategorie, nazev as promenna, dotaz as promenna_sql
                                                 from dotazy
                                                 left join zadani_knihy_otazky.promenne on dotazy.s_q_l like CONCAT('%', promenne.nazev, '%')
-                                                where dotazy_id = :dot");
-                    $dotaz -> bindvalue (":dot", $dot['dotazy_id']);
+                                                where id_dotazy = :dot");
+                    $dotaz -> bindvalue (":dot", $dot['id_dotazy']);
                     $dotaz -> execute();
                     $dotaz = $dotaz->fetchAll();
                     //preg_match_all('/(?<!\w)\$\w+/',$dotaz['s_q_l'],$matches); dá do $matches[0] array všech proměnných
-                    $dotaz_dotazyid = $dotaz[0]['dotazy_id'];
+                    $dotaz_dotazyid = $dotaz[0]['id_dotazy'];
                     $dotaz_text = $dotaz[0]['text'];
                     $dotaz_sql = $dotaz[0]['s_q_l'];
                     $db -> query("use ".$cil_databaze);
@@ -156,7 +157,7 @@ require 'overeni.php';
                     }
                     $db -> query("use ".$cil_databaze_otazky);
                     $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved, max_bodu) values (:kat,:dotid,:text,:sql,:odpo,:bod)");
-                    $otazka -> bindvalue (":kat", $kat['kategorie']);
+                    $otazka -> bindvalue (":kat", $kat['id_kategorie']);
                     $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
                     $otazka -> bindvalue (":text", $dotaz_text);
                     $otazka -> bindvalue (":sql", $dotaz_sql);
