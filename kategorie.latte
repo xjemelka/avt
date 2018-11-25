@@ -33,14 +33,14 @@
                         <th>Odstranit</th>
                         {foreach $kategorie as $k}
                             <tr>
-                                <td>{$k['kategorie_id']}</td>
-                                <td><a href="./otazky.php?zadani={$zadani}&kategorie={$k['kategorie_id']}">{$k['nazev']}</a></td>
+                                <td>{$k['id_kategorie']}</td>
+                                <td><a href="./otazky.php?zadani={$zadani}&kategorie={$k['id_kategorie']}">{$k['nazev']}</a></td>
                                 <td>{$k['body']}</td>
                                 <td>{$k['otazek']}</td>
                                 <td>{$k['pocet']}</td>
                                 <td>
                                     <form method="post" action="kategorie.php" onsubmit="return confirm('Opravdu chcete smazat kategorii? Budou smazány i otázky do ní spadající!')" >
-                                        <input type="hidden" name="smaz_kategorie_id" value="{$k['kategorie_id']}" >
+                                        <input type="hidden" name="smaz_id_kategorie" value="{$k['id_kategorie']}" >
                                         <button class="btn btn-danger btn-xs" type="submit">
                                             <span class="glyphicon glyphicon-remove"></span> Odstranit
                                         </button>     

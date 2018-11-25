@@ -66,12 +66,12 @@
                         <th>SQL</th>
                         {foreach $otazky as $o}
                             <tr>
-                                <td>{$o['dotazy_id']}</td>
+                                <td>{$o['id_dotazy']}</td>
                                 <td>
-                                    <textarea class="form-control" type="text" name="text{$o['dotazy_id']}" cols="40" rows="5">{$o['text']}</textarea>
+                                    <textarea class="form-control" type="text" name="text{$o['id_dotazy']}" cols="40" rows="5">{$o['text']}</textarea>
                                 </td>
                                 <td>
-                                    <textarea class="form-control" type="text" name="sql{$o['dotazy_id']}" cols="40" rows="5">{$o['s_q_l']}</textarea>
+                                    <textarea class="form-control" type="text" name="sql{$o['id_dotazy']}" cols="40" rows="5">{$o['s_q_l']}</textarea>
                                 </td>
                             </tr>
                         {/foreach}
