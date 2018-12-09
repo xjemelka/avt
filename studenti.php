@@ -58,17 +58,14 @@ if ($_SESSION["user"]["typ"] != 1){
          }
     }
     
-        $studenti = $db->query("SELECT id_uzivatele, login, email, zadani, body, max_body,
-                                CASE COALESCE(odpoved4, odpoved3, odpoved2, odpoved1)
-                                    WHEN odpoved4 THEN 4
-                                    WHEN odpoved3 THEN 3
-                                    WHEN odpoved2 THEN 2
-                                    WHEN odpoved1 THEN 1
-                                    ELSE 0
-                                END AS pocet_odpovedi 
-                            from nastaveni.uzivatele where typ = 2");
+        $studenti = $db->query("SELECT u.id_uzivatele, u.login, u.email, u.zadani, COALESCE(ot.body,0) body, COALESCE(ot.max_body,0) max_body, COALESCE(od.kolikate,0) pocet_odpovedi from nastaveni.uzivatele u
+                                left join (select id_uzivatele,kolikate from odevzdani where id_odevzdani in (select max(id_odevzdani) from odevzdani group by id_uzivatele)) od on od.id_uzivatele = u.id_uzivatele
+                                left join (select id_uzivatele, sum(max_bodu) max_body, sum(ziskanych_bodu) body from otazky group by id_uzivatele) ot on ot.id_uzivatele = u.id_uzivatele
+                                where u.typ = 2
+                                order by u.login");
     
 
+        
     $tplVars["studenti"] = $studenti->fetchAll();
     
     $tplVars["titulek"] = "Přehled studentů";

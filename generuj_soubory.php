@@ -386,8 +386,10 @@ require 'tfpdf.php';
         $pdf->Cell(0,0,'Příklady k řešení');
         $pdf->Ln(10);
         $pdf->SetFont('DejaVu','',10);
-        $db -> query("use ".$databaze."_otazky");  
-        $otazky = $db->query("select id_otazky,text,max_bodu from otazky order by id_otazky");
+        //$db -> query("use ".$databaze."_otazky");  
+        $otazky = $db->prepare("select id_otazky,text,max_bodu from otazky o join uzivatele u on u.id_uzivatele = o.id_uzivatele where u.login = :login order by id_otazky");
+        $otazky ->bindValue(":login", $login);
+        $otazky ->execute();
         $otazky = $otazky->fetchAll();
         foreach($otazky as $otazka){
             $pdf->MultiCell(0,5,$otazka['id_otazky'].". ".$otazka['text']." [".$otazka['max_bodu']."b]",0,1);

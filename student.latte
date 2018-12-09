@@ -2,17 +2,16 @@
 {block obsah}
 
 
-<div id='welcomeDiv' style='display:none'>asdhfaoeufhouashdfuaheoufhaousfhaouehfousahefauoefh</div>
 
 <div class="row">
     <div class="col-sm-12 col-md-12">
         <p>bodů: {$stav['body']}/{$stav['max_body']}</p>
         <p>procentuální úspěšnost: {round($stav['body']/$stav['max_body']*100)}%</p>
-        <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p>
+       {* <p>počet zodpovězení: {$stav['pocet_odpovedi']}</p> *}
         <p>čas prvního přihlášení: {$stav['prvni_prihlaseni']}</p>
-        {for $i=1; $i<=$stav['pocet_odpovedi']; $i++}
-        <p>odeslání {$i}. odpovědi: {$stav['odpoved'.$i]}</p>
-        {/for}
+        {foreach $stav_odpovedi as $odpovedi}
+        <p>odeslání {$odpovedi['kolikate']}. odpovědi: {$odpovedi['cas_odevzdani']}</p>
+        {/foreach}
         <form class="form-horizontal" action="generuj_soubory.php" method="POST">
             <div class="form-group">   
                 <input type="hidden" name="login" value="{$stav['login']}" >
@@ -31,6 +30,7 @@
             </div>
         </form>
     </div>
+                
     <div class="col-sm-12 col-md-12">
         <hr/>
         <form class="form-horizontal col-sm-12 col-md-12" action="student.php" method="POST">

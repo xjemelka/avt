@@ -24,13 +24,14 @@ require 'overeni.php';
         $zadani = $zadani->fetch();
         $zdroj_databaze = $zadani['zadani'];
         $zdroj_databaze_id = $zadani['id_zadani'];
-        $uzivatele_bez_dat = $db->query('select login from nastaveni.uzivatele where zadani is null and typ != 1');
+        $uzivatele_bez_dat = $db->query('select login, id_uzivatele from nastaveni.uzivatele where zadani is null and typ != 1');
         $uzivatele_bez_dat = $uzivatele_bez_dat -> fetchAll();
         //$cil_databaze = $_SESSION['novy_student'];
         $stahni_po_vygenerovani = 0;
     }
     foreach ($uzivatele_bez_dat as $uzivatel_bez_dat){
         $cil_databaze = $uzivatel_bez_dat['login'];
+        $id_uzivatele = $uzivatel_bez_dat['id_uzivatele'];
         
         $aktualizuj_zadani = $db->prepare("UPDATE nastaveni.uzivatele SET zadani = :db WHERE login = :log");
         $aktualizuj_zadani->bindvalue(":db", $zdroj_databaze);
@@ -96,11 +97,11 @@ require 'overeni.php';
         }
         else{
             //část s dotazy    
-            $cil_databaze_otazky = $cil_databaze.'_otazky';
-            $smaz = $db->query("DROP DATABASE IF EXISTS ".$cil_databaze_otazky);
-            $create_db = $db->query('CREATE DATABASE '.$cil_databaze_otazky);
-            $db -> query("use ".$cil_databaze_otazky);   
-            $db -> query("CREATE TABLE `otazky` (
+            //$cil_databaze_otazky = $cil_databaze.'_otazky';
+            //$smaz = $db->query("DROP DATABASE IF EXISTS ".$cil_databaze_otazky);
+            //$create_db = $db->query('CREATE DATABASE '.$cil_databaze_otazky);
+            //$db -> query("use ".$cil_databaze_otazky);   
+            /*$db -> query("CREATE TABLE `otazky` (
                         `id_otazky` int(11) NOT NULL AUTO_INCREMENT,
                         `kategorie` int(11) NOT NULL,
                         `dotazy_id` int(11) NOT NULL,
@@ -114,15 +115,15 @@ require 'overeni.php';
                         `odpoved3` varchar(200) DEFAULT NULL,
                         `odpoved4` varchar(200) DEFAULT NULL,
                         PRIMARY KEY (`id_otazky`)
-                       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci");
-            $db -> query("use nastaveni");  
+                       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci");*/
+            //$db -> query("use nastaveni");  
             $kategorie = $db -> prepare("select id_kategorie, otazek, body from kategorie where id_zadani = :zad order by id_kategorie");
             $kategorie -> bindvalue (":zad", $zdroj_databaze_id);
             $kategorie -> execute();
             $kategorie = $kategorie -> fetchAll();
             $body_celkem = 0;
             foreach($kategorie as $kat){
-                $db -> query("use nastaveni"); 
+                //$db -> query("use nastaveni"); 
                 $dotazy = $db -> prepare("select id_dotazy from dotazy where id_kategorie = :kat order by rand() limit ".$kat['otazek']);
                 $dotazy -> bindvalue (":kat", $kat['id_kategorie']);
                 $dotazy -> execute();
@@ -155,9 +156,9 @@ require 'overeni.php';
                     if (!isset($odpoved)){
                         $odpoved = "NULL";
                     }
-                    $db -> query("use ".$cil_databaze_otazky);
-                    $otazka = $db -> prepare("INSERT INTO otazky (kategorie, dotazy_id, text, s_q_l, spravna_odpoved, max_bodu) values (:kat,:dotid,:text,:sql,:odpo,:bod)");
-                    $otazka -> bindvalue (":kat", $kat['id_kategorie']);
+                    $db -> query("use nastaveni");
+                    $otazka = $db -> prepare("INSERT INTO otazky (id_uzivatele, id_dotazy, text, s_q_l, spravna_odpoved, max_bodu) values (:dotuz, :dotid,:text,:sql,:odpo,:bod)");
+                    $otazka -> bindvalue (":dotuz", $id_uzivatele);
                     $otazka -> bindvalue (":dotid", $dotaz_dotazyid);
                     $otazka -> bindvalue (":text", $dotaz_text);
                     $otazka -> bindvalue (":sql", $dotaz_sql);
@@ -167,7 +168,7 @@ require 'overeni.php';
                     $body_celkem=$body_celkem + $kat['body'];
                 }
             }
-            $max_body = $db -> prepare ("update nastaveni.uzivatele set max_body = :max where login = :log");
+            $max_body = $db -> prepare ("update uzivatele set max_body = :max where login = :log");
             $max_body -> bindvalue (":max", $body_celkem);
             $max_body -> bindvalue (":log", $cil_databaze);
             $max_body -> execute();
