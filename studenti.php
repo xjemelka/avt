@@ -48,7 +48,6 @@ if ($_SESSION["user"]["typ"] != 1){
     if(!empty($_POST['smaz_id_uzivatele'])){
          try {
              $smaz = $db->query("DROP DATABASE IF EXISTS ".$_POST['smaz_login_uzivatele']);
-             $smaz = $db->query("DROP DATABASE IF EXISTS ".$_POST['smaz_login_uzivatele']."_otazky");
              $smaz = $db->prepare("DELETE FROM nastaveni.uzivatele WHERE id_uzivatele = :id");
              $smaz -> bindValue(":id",$_POST['smaz_id_uzivatele']);
              $smaz -> execute();
