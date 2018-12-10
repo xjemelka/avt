@@ -20,6 +20,10 @@
                     <input class="form-control" type="number" name="strhavani" min="0" max="20" value="{$info['strhavani']}" required/>
                 </div>  
                 <div class="form-group">
+                    <label class="control-label">Deadline pro první odevzdání</label>
+                    <input class="form-control" type="date" name="deadline" value="{$info['deadline_odevzdani']}" required/>
+                </div>  
+                <div class="form-group">
                 <label class="checkbox-inline"> 
                     <input type="checkbox" name="aktualni_zadani" {if $info['aktualni_zadani']==1}checked disabled{/if}> Aktuální zadání
                 </label>

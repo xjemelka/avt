@@ -16,7 +16,7 @@ if ($_SESSION["user"]["typ"] != 2){
     
     if(!empty($_POST)){
         try {
-            $stav = $db->prepare("select COALESCE(od.kolikate,0) pocet_odpovedi, z.strhavani, z.max_odevzdani from uzivatele u
+            $stav = $db->prepare("select COALESCE(od.kolikate,0) pocet_odpovedi, z.strhavani, z.max_odevzdani, CASE WHEN DATE(NOW()) > deadline_odevzdani THEN 1 ELSE 0 END AS po_deadlinu from uzivatele u
                             join zadani z on z.zadani=u.zadani
                             left join (select id_uzivatele,kolikate from odevzdani where id_odevzdani in (select max(id_odevzdani) from odevzdani group by id_uzivatele)) od on od.id_uzivatele = u.id_uzivatele
                             where u.id_uzivatele = :iduz");
@@ -25,21 +25,15 @@ if ($_SESSION["user"]["typ"] != 2){
             $stav = $stav -> fetch();
             $strhavani = $stav['strhavani']*$stav['pocet_odpovedi']*0.01;
             $odpoved_cislo = "odpoved".($stav['pocet_odpovedi']+1);
-            if ($stav['pocet_odpovedi']<$stav['max_odevzdani']){
-                //$db -> query("use ".$_SESSION["user"]["login"]."_otazky");
-                
+            if ($stav['pocet_odpovedi']==0 and $stav['po_deadlinu']==1) {
                 $zodpovedel = $db -> prepare("insert into odevzdani (id_uzivatele,kolikate) values (:iduz,:kolik)");
                 $zodpovedel->bindValue(":iduz", $_SESSION["user"]["id_uzivatele"]);
                 $zodpovedel->bindValue(":kolik", $stav['pocet_odpovedi']+1);
                 $zodpovedel->execute();
-                
-                $odevzdani = $db -> prepare("select id_odevzdani from odevzdani where id_uzivatele = :iduz and kolikate = :kolik");
-                $odevzdani->bindValue(":iduz", $_SESSION["user"]["id_uzivatele"]);
-                $odevzdani->bindValue(":kolik", $stav['pocet_odpovedi']+1);
-                $odevzdani->execute();
-                $odevzdani = $odevzdani->fetch();
-                $odevzdani = $odevzdani['id_odevzdani'];
-                
+                $stav['pocet_odpovedi']++;
+            }
+            if ($stav['pocet_odpovedi']<$stav['max_odevzdani']){
+                //$db -> query("use ".$_SESSION["user"]["login"]."_otazky");
                 
                 $otazky = $db->prepare("select id_otazky, text, spravna_odpoved, max_bodu from otazky 
                                       where ziskanych_bodu = 0
@@ -48,8 +42,24 @@ if ($_SESSION["user"]["typ"] != 2){
                 $otazky->execute();
                 $otazky = $otazky -> fetchAll();
                 
+                $odevzdal = 0;
+                
                 foreach ($otazky as $otazka) {
                     if (!empty($_POST[$otazka['id_otazky']]) || is_numeric($_POST[$otazka['id_otazky']])){
+                        if ($odevzdal==0){
+                            $zodpovedel = $db -> prepare("insert into odevzdani (id_uzivatele,kolikate) values (:iduz,:kolik)");
+                            $zodpovedel->bindValue(":iduz", $_SESSION["user"]["id_uzivatele"]);
+                            $zodpovedel->bindValue(":kolik", $stav['pocet_odpovedi']+1);
+                            $zodpovedel->execute();
+
+                            $odevzdani = $db -> prepare("select id_odevzdani from odevzdani where id_uzivatele = :iduz and kolikate = :kolik");
+                            $odevzdani->bindValue(":iduz", $_SESSION["user"]["id_uzivatele"]);
+                            $odevzdani->bindValue(":kolik", $stav['pocet_odpovedi']+1);
+                            $odevzdani->execute();
+                            $odevzdani = $odevzdani->fetch();
+                            $odevzdani = $odevzdani['id_odevzdani'];
+                            $odevzdal=1;
+                        }
                         $vstup = $_POST[$otazka['id_otazky']];
                         
                         if(strcasecmp($vstup, "NULL") == 0){

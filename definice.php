@@ -66,6 +66,12 @@ $obrazek = "files/" . $_SESSION['db'] . ".png";
                 $update -> bindValue(":zad", $_SESSION['db']);
                 $update -> execute();
             }
+            if (isset($_POST['deadline'])){
+                $update = $db->prepare("update nastaveni.zadani set deadline_odevzdani = :deadline where zadani = :zad");
+                $update -> bindValue(":deadline", $_POST['deadline']);
+                $update -> bindValue(":zad", $_SESSION['db']);
+                $update -> execute();
+            }
             $tplVars['hlaska'] = "Nastavení úspěšně aktualizováno";
         } catch (Exception $e) {
             die($e->getMessage());
@@ -78,7 +84,7 @@ $obrazek = "files/" . $_SESSION['db'] . ".png";
         $tplVars["obrazek"]="";
     }
     
-    $info = $db->prepare("select aktualni_zadani, text, strhavani FROM nastaveni.zadani where zadani = :zad");
+    $info = $db->prepare("select aktualni_zadani, text, strhavani, deadline_odevzdani FROM nastaveni.zadani where zadani = :zad");
     $info -> bindValue(":zad", $_SESSION['db']);
     $info->execute();
 
