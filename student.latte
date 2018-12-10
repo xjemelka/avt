@@ -53,9 +53,11 @@
                         <th class="col-md-1">Možných bodů</th>
                         <th class="col-md-1">Získaných bodů</th>
 
+                        {var $cislovani = 1}
                         {foreach $otazky as $o}
                             <tr>
-                                <td id="zadani{$o['id_otazky']}" class="zadani" title='{$o['text']}' rowspan="1">{$o['id_otazky']}</td>
+                                <input type="hidden" id="zadani{$o['id_otazky']}" value="{$o['id_otazky']}">
+                                <td id="cislovani{$o['id_otazky']}" class="zadani" title='{$o['text']}' rowspan="1">{$cislovani}</td>
                                 <td onclick="zobrazText({$o['id_otazky']})"><span id="zobrazText{$o['id_otazky']}" class="zobrazText" >Zobraz zadání</span></td>
                                 <td onclick="zobrazSql({$o['id_otazky']})"><span id="zobrazSql{$o['id_otazky']}" class="zobrazSql" >Zobraz sql</span></td>
                                 {if $o['ziskanych_bodu']>0}
@@ -78,6 +80,7 @@
                                 <td></td>
                                 <td colspan="{5+$stav['pocet_odpovedi']}" >{$o['s_q_l']}</td>
                             </tr>
+                            {var $cislovani = $cislovani+1}
                         {/foreach}
                     </table>
                 </div>

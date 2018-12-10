@@ -391,9 +391,11 @@ require 'tfpdf.php';
         $otazky ->bindValue(":login", $login);
         $otazky ->execute();
         $otazky = $otazky->fetchAll();
+        $ciselnik = 1;
         foreach($otazky as $otazka){
-            $pdf->MultiCell(0,5,$otazka['id_otazky'].". ".$otazka['text']." [".$otazka['max_bodu']."b]",0,1);
+            $pdf->MultiCell(0,5,$ciselnik.". ".$otazka['text']." [".$otazka['max_bodu']."b]",0,1);
             $pdf->Ln(5);
+            $ciselnik++;
         }
         $pdf->Output($slozka.'/zadani.pdf');
         
